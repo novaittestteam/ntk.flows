@@ -1,0 +1,806 @@
+[
+    {
+        "id": "f37c5822880f3c74",
+        "type": "tab",
+        "label": "Sys_Global_Config",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "b2c046347438293e",
+        "type": "tab",
+        "label": "Sys_Sync",
+        "disabled": true,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "6618e60db13c5c77",
+        "type": "redis-config",
+        "name": "redis",
+        "options": "$globalContext('sys_global_conf').getRedisConfig()",
+        "cluster": false,
+        "optionsType": "jsonata"
+    },
+    {
+        "id": "6b165d273e2532cf",
+        "type": "function",
+        "z": "f37c5822880f3c74",
+        "name": "Set Auth + URL",
+        "func": "msg.auth = 'Bearer ' + flow.get('sys_token',\"memoryOnly\");\nmsg.url = flow.get('sys_url',\"memoryOnly\") + 'flows';\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 860,
+        "y": 160,
+        "wires": [
+            [
+                "9c1318889682618b"
+            ]
+        ]
+    },
+    {
+        "id": "4158a9c8499d7aee",
+        "type": "inject",
+        "z": "f37c5822880f3c74",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 150,
+        "y": 160,
+        "wires": [
+            [
+                "dbda6f2e69820974"
+            ]
+        ]
+    },
+    {
+        "id": "9c1318889682618b",
+        "type": "http request",
+        "z": "f37c5822880f3c74",
+        "name": "GET Flows",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "Authorization",
+                "keyValue": "",
+                "valueType": "msg",
+                "valueValue": "auth"
+            }
+        ],
+        "x": 290,
+        "y": 300,
+        "wires": [
+            [
+                "60e9fc0d4c32c351"
+            ]
+        ]
+    },
+    {
+        "id": "60e9fc0d4c32c351",
+        "type": "function",
+        "z": "f37c5822880f3c74",
+        "name": "Filter FlowID",
+        "func": "let getID = function (flowLabel) {\n  let a = msg.payload.filter (\n    function (flow) {\n      return flow.type == 'tab' && flow.label == flowLabel ;\n    }\n  );\n  return a[0].id;\n};\nmsg.url = flow.get('sys_url',\"memoryOnly\") + 'flow' + '/' + getID(flow.get('sys_tab',\"memoryOnly\").sync);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 290,
+        "y": 400,
+        "wires": [
+            [
+                "674b46452599d08d"
+            ]
+        ]
+    },
+    {
+        "id": "674b46452599d08d",
+        "type": "http request",
+        "z": "f37c5822880f3c74",
+        "name": "GET Flow by ID",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "Authorization",
+                "keyValue": "",
+                "valueType": "msg",
+                "valueValue": "auth"
+            }
+        ],
+        "x": 540,
+        "y": 400,
+        "wires": [
+            [
+                "7d35d0b3aace15f1",
+                "5b6a8a7f6dc67155"
+            ]
+        ]
+    },
+    {
+        "id": "746a77c001937e96",
+        "type": "http request",
+        "z": "f37c5822880f3c74",
+        "name": "PUT Disabled Flow",
+        "method": "PUT",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "Authorization",
+                "keyValue": "",
+                "valueType": "msg",
+                "valueValue": "auth"
+            }
+        ],
+        "x": 1290,
+        "y": 400,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7d35d0b3aace15f1",
+        "type": "debug",
+        "z": "f37c5822880f3c74",
+        "name": "Show me the flow",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 830,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "5b6a8a7f6dc67155",
+        "type": "switch",
+        "z": "f37c5822880f3c74",
+        "name": "Sync ON?",
+        "property": "env",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "true",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 810,
+        "y": 400,
+        "wires": [
+            [
+                "a37c472185b69c44"
+            ],
+            [
+                "04828210399528c7"
+            ]
+        ]
+    },
+    {
+        "id": "a37c472185b69c44",
+        "type": "change",
+        "z": "f37c5822880f3c74",
+        "name": "Disabled: false",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload.disabled",
+                "pt": "msg",
+                "to": "false",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1040,
+        "y": 360,
+        "wires": [
+            [
+                "746a77c001937e96",
+                "c9f3acb51836e805"
+            ]
+        ]
+    },
+    {
+        "id": "04828210399528c7",
+        "type": "change",
+        "z": "f37c5822880f3c74",
+        "name": "Disabled: true",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload.disabled",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1040,
+        "y": 440,
+        "wires": [
+            [
+                "746a77c001937e96",
+                "d6826276f3824b13"
+            ]
+        ]
+    },
+    {
+        "id": "c9f3acb51836e805",
+        "type": "debug",
+        "z": "f37c5822880f3c74",
+        "name": "check enabled?",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1260,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "d6826276f3824b13",
+        "type": "debug",
+        "z": "f37c5822880f3c74",
+        "name": "check disabled?",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1260,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "d2bb8dd3aef0b110",
+        "type": "comment",
+        "z": "f37c5822880f3c74",
+        "name": "Enable_Sync",
+        "info": "",
+        "x": 130,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "01cc5fca1a8b2ced",
+        "type": "catch",
+        "z": "f37c5822880f3c74",
+        "name": "Undefined Vars",
+        "scope": [
+            "dbda6f2e69820974",
+            "7af5a3bed973d3db"
+        ],
+        "uncaught": false,
+        "x": 140,
+        "y": 80,
+        "wires": [
+            [
+                "e0ba0b47426bdcee"
+            ]
+        ]
+    },
+    {
+        "id": "dbda6f2e69820974",
+        "type": "change",
+        "z": "f37c5822880f3c74",
+        "name": "Get BF_MULTINODE_SYNC",
+        "rules": [
+            {
+                "t": "set",
+                "p": "env",
+                "pt": "msg",
+                "to": "BF_MULTINODE_SYNC",
+                "tot": "env"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 400,
+        "y": 160,
+        "wires": [
+            [
+                "7af5a3bed973d3db"
+            ]
+        ]
+    },
+    {
+        "id": "1c783dc33bd8590b",
+        "type": "debug",
+        "z": "f37c5822880f3c74",
+        "name": "Show error",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "error.message",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 450,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "7af5a3bed973d3db",
+        "type": "function",
+        "z": "f37c5822880f3c74",
+        "name": "Get Conf Vars",
+        "func": "if (msg.env) {\n    //Get Vars From functionGlobalContext from setting.js\n    let sys_global_conf = global.get('sys_global_conf');\n    //Push to Flow context\n    flow.set('sys_token', sys_global_conf.getApiToken(), \"memoryOnly\");\n    flow.set('sys_url', sys_global_conf.getApiRoot(), \"memoryOnly\");\n    flow.set('sys_tab', sys_global_conf.getSysFlowNames(), \"memoryOnly\");\n    return msg ;\n}\nelse return msg.node.error();\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 640,
+        "y": 160,
+        "wires": [
+            [
+                "6b165d273e2532cf"
+            ]
+        ]
+    },
+    {
+        "id": "ac6cd4326b0e9eed",
+        "type": "comment",
+        "z": "f37c5822880f3c74",
+        "name": "Errors processing",
+        "info": "",
+        "x": 140,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "e0ba0b47426bdcee",
+        "type": "function",
+        "z": "f37c5822880f3c74",
+        "name": "Warn",
+        "func": "node.warn('Some of Global Config variables have been missing');\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 310,
+        "y": 80,
+        "wires": [
+            [
+                "1c783dc33bd8590b"
+            ]
+        ]
+    },
+    {
+        "id": "fbd508fddc271e48",
+        "type": "inject",
+        "z": "b2c046347438293e",
+        "name": "Publish Event",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            },
+            {
+                "p": "env",
+                "v": "BF_MULTINODE_SYNC",
+                "vt": "env"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "RED.events.on.deploy",
+        "x": 160,
+        "y": 120,
+        "wires": [
+            [
+                "1161a58f60932a83",
+                "ee154d3c100ecf75"
+            ]
+        ]
+    },
+    {
+        "id": "1161a58f60932a83",
+        "type": "debug",
+        "z": "b2c046347438293e",
+        "name": "Initial Event",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 430,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "e9aca9e97b2006c2",
+        "type": "comment",
+        "z": "b2c046347438293e",
+        "name": "Trigger on Deploy button",
+        "info": "",
+        "x": 170,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "89a0ae0cd5095b17",
+        "type": "debug",
+        "z": "b2c046347438293e",
+        "name": "POST Reload",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1180,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "de26445609f3f810",
+        "type": "http request",
+        "z": "b2c046347438293e",
+        "name": "RELOAD Flows",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "Authorization",
+                "keyValue": "",
+                "valueType": "msg",
+                "valueValue": "auth"
+            },
+            {
+                "keyType": "Content-Type",
+                "keyValue": "",
+                "valueType": "other",
+                "valueValue": "application/json"
+            },
+            {
+                "keyType": "other",
+                "keyValue": "Node-RED-Deployment-Type",
+                "valueType": "other",
+                "valueValue": "reload"
+            }
+        ],
+        "x": 980,
+        "y": 300,
+        "wires": [
+            [
+                "89a0ae0cd5095b17"
+            ]
+        ]
+    },
+    {
+        "id": "b5336cb18d755af7",
+        "type": "comment",
+        "z": "b2c046347438293e",
+        "name": "Parse Redis Events and SYNC",
+        "info": "",
+        "x": 190,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "980725117ff2cdef",
+        "type": "redis-in",
+        "z": "b2c046347438293e",
+        "server": "6618e60db13c5c77",
+        "command": "subscribe",
+        "name": "Deploy Channel",
+        "topic": "RED.events.on.deploy",
+        "obj": true,
+        "timeout": 0,
+        "x": 140,
+        "y": 300,
+        "wires": [
+            [
+                "d97e3e950e4fd297",
+                "5ca8ad1da66f355a"
+            ]
+        ]
+    },
+    {
+        "id": "d97e3e950e4fd297",
+        "type": "debug",
+        "z": "b2c046347438293e",
+        "name": "REDIS Events",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 340,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "4e770c68b6d807c8",
+        "type": "redis-out",
+        "z": "b2c046347438293e",
+        "server": "6618e60db13c5c77",
+        "command": "publish",
+        "name": "Push event",
+        "topic": "RED.events.on.deploy",
+        "obj": true,
+        "x": 970,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "c90caf5d020d8296",
+        "type": "function",
+        "z": "b2c046347438293e",
+        "name": "Get hostname",
+        "func": "msg.payload = context.global.os.hostname();\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 800,
+        "y": 140,
+        "wires": [
+            [
+                "4e770c68b6d807c8"
+            ]
+        ]
+    },
+    {
+        "id": "5ca8ad1da66f355a",
+        "type": "function",
+        "z": "b2c046347438293e",
+        "name": "is same hostname",
+        "func": "if (context.global.os.hostname() === msg.payload){\n    return [null, msg];\n}\nreturn [msg, null];",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 350,
+        "y": 300,
+        "wires": [
+            [
+                "3019e85198805ddf"
+            ],
+            []
+        ],
+        "outputLabels": [
+            "OK",
+            "Same Hostname"
+        ]
+    },
+    {
+        "id": "83af911f35745806",
+        "type": "change",
+        "z": "b2c046347438293e",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "#:(memoryOnly)::autoDeploy",
+                "pt": "global",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 780,
+        "y": 300,
+        "wires": [
+            [
+                "de26445609f3f810"
+            ]
+        ]
+    },
+    {
+        "id": "49157852cbb265b1",
+        "type": "change",
+        "z": "b2c046347438293e",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "#:(memoryOnly)::autoDeploy",
+                "pt": "global",
+                "to": "false",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 820,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f5cf091b1e0491b6",
+        "type": "switch",
+        "z": "b2c046347438293e",
+        "name": "",
+        "property": "#:(memoryOnly)::autoDeploy",
+        "propertyType": "global",
+        "rules": [
+            {
+                "t": "true"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 590,
+        "y": 120,
+        "wires": [
+            [
+                "49157852cbb265b1"
+            ],
+            [
+                "c90caf5d020d8296"
+            ]
+        ]
+    },
+    {
+        "id": "ee154d3c100ecf75",
+        "type": "switch",
+        "z": "b2c046347438293e",
+        "name": "Sync ON?",
+        "property": "env",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "true",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 430,
+        "y": 120,
+        "wires": [
+            [
+                "f5cf091b1e0491b6"
+            ],
+            [
+                "b3f8a774898161cd"
+            ]
+        ]
+    },
+    {
+        "id": "b3f8a774898161cd",
+        "type": "debug",
+        "z": "b2c046347438293e",
+        "name": "Otherwise",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 600,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "3019e85198805ddf",
+        "type": "function",
+        "z": "b2c046347438293e",
+        "name": "Set Auth+Payload",
+        "func": "let sys_global_conf = global.get('sys_global_conf');\nlet token = sys_global_conf.getApiToken();\nlet url = sys_global_conf.getApiRoot();\nmsg.auth = 'Bearer ' + token;\nmsg.url = url + 'flows';\nmsg.payload = {};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 570,
+        "y": 300,
+        "wires": [
+            [
+                "83af911f35745806"
+            ]
+        ]
+    }
+]
