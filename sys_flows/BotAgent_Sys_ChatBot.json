@@ -1,0 +1,4995 @@
+[
+    {
+        "id": "e68505ad609a726f",
+        "type": "subflow",
+        "name": "Macros Subflow: get phone number",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 50,
+                "y": 30,
+                "wires": [
+                    {
+                        "id": "7d83309583ba445a"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 1580,
+                "y": 120,
+                "wires": [
+                    {
+                        "id": "81f1c2e00ba43f63",
+                        "port": 0
+                    },
+                    {
+                        "id": "e7fc828e9560a768",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [],
+        "meta": {},
+        "color": "#C0DEED"
+    },
+    {
+        "id": "7d83309583ba445a",
+        "type": "function",
+        "z": "e68505ad609a726f",
+        "name": "Message Factory",
+        "func": "const { additional_attributes, action_additional_params } = msg.originalMessage;\nconst transport = additional_attributes.contactSource;\nconst chatContext = msg.chat();\nconst chatVariables = await chatContext.all();\nconst lang = chatVariables.lang;\nconst actionAdditionalParams = action_additional_params;\n\nconst buttons = [];\nactionAdditionalParams.forEach(function ({ key, value }) {\n    let itemLang = key.slice(-2);\n    if (lang === itemLang && key.startsWith(\"text_get_phone_01\")) {\n        msg.payload.type = 'message';\n        msg.payload.content = value\n    }\n    if (lang === itemLang && key.startsWith(\"text_get_phone_02\")) {\n        buttons.push({\n            label: value,\n            value,\n        })\n    }\n});\n\n\nswitch (transport) {\n    case 'telegram':\n    case 'viber': {\n        const viberAdditionalParams = {\n            bgColor: '#99ccff',\n            bgMedia: '',\n            image: '',\n            silent: \"false\",\n            textVAlign: \"middle\",\n            textHAlign: \"center\",\n            textOpacity: \"100\",\n            textSize: \"regular\"\n        }\n        msg.payload.type = 'buttons';\n        msg.payload.buttons = buttons.map(({ label, value}) => {\n            return {\n                type: \"keyboardPhoneButton\",\n                label,\n                value,\n                ...viberAdditionalParams\n            }\n        });\n        msg.payload.buttons.splice(1, 0, { type: 'newline' });\n        msg.payload.buttons.splice(4, 0, { type: 'newline' });\n        break;\n    }\n    case 'messenger': {\n        msg.payload.type = 'quick-replies';\n        msg.payload.buttons = buttons.map(({ label, value }) => {\n            return {\n                type: \"phone\",\n                label,\n                value,\n            }\n        });\n        break;\n    }\n    default: \n        return [null, msg];\n    \n}\nreturn [msg, null];",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 230,
+        "y": 100,
+        "wires": [
+            [
+                "7e073962d8e4c38c"
+            ],
+            [
+                "1e90f8bd314369c9"
+            ]
+        ]
+    },
+    {
+        "id": "7e073962d8e4c38c",
+        "type": "chatbot-chatwoot-botagent-send",
+        "z": "e68505ad609a726f",
+        "name": "Bot Sender",
+        "bot": "50a12b5a8f843fa0",
+        "botProduction": "50a12b5a8f843fa0",
+        "track": true,
+        "passThrough": false,
+        "errorOutput": false,
+        "disableChangeStatus": false,
+        "outputs": 1,
+        "x": 450,
+        "y": 100,
+        "wires": [
+            [
+                "158eacd927c5c548"
+            ]
+        ]
+    },
+    {
+        "id": "23579783c596857d",
+        "type": "function",
+        "z": "e68505ad609a726f",
+        "name": "update contact phone number",
+        "func": "const configId = msg.configId;\nconst novatalksUrl = global.get(`${configId}-novatalksUrl`);\nconst novatalksAccountId = global.get(`${configId}-novatalksAccountId`);\nconst token = global.get(`${configId}-novatalksToken`);\n\nconst { conversation, sender } = msg.originalMessage;\nconst transport = conversation.additional_attributes.contactSource;\nconst { id: contactId, type } = sender;\nlet { content } = msg.payload;\nconst isPhoneE164 = (value) => !!value.match(/^\\+[1-9]\\d{1,14}$/);\n\ncontent = content[0] !== \"+\" ? `+${content}` : content;\n\n\nif (contactId && type === 'contact' && isPhoneE164(content)) {\n    msg.url = `${novatalksUrl}/api/v1/accounts/${novatalksAccountId}/contacts/${contactId}`;\n    msg.method = 'patch';\n    msg.payload = { phone_number: content };\n    msg.headers = {\n        \"api_access_token\": token\n    };\n    return [msg, null];\n} else {\n    return [null, msg];\n}\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 750,
+        "y": 100,
+        "wires": [
+            [
+                "224ed1c72a432197"
+            ],
+            [
+                "749abf89dfee3812",
+                "9af426a9f19bc669"
+            ]
+        ]
+    },
+    {
+        "id": "224ed1c72a432197",
+        "type": "http request",
+        "z": "e68505ad609a726f",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 990,
+        "y": 40,
+        "wires": [
+            [
+                "749abf89dfee3812",
+                "ce50f74551713c7c"
+            ]
+        ]
+    },
+    {
+        "id": "749abf89dfee3812",
+        "type": "function",
+        "z": "e68505ad609a726f",
+        "name": "set private note",
+        "func": "const configId = msg.configId;\nconst novatalksUrl = global.get(`${configId}-novatalksUrl`);\nconst novatalksAccountId = global.get(`${configId}-novatalksAccountId`);\nconst token = global.get(`${configId}-novatalksToken`);\nconst chatContext = msg.chat();\nconst chatVariables = await chatContext.all();\nconst lang = chatVariables.lang;\nconst { chatId } = msg.originalMessage;\n\nconst privatNote = {\n    ua: {\n        success_label: 'Номер телефону успішно отримано.',\n        failure_label: 'Номер телефону не отримано.'\n    },\n    ru: {\n        success_label: \"Номер телефона успешно получен.\",\n        failure_label: 'Номер телефона не получен.'\n    },\n    en: {\n        success_label: \"Phone number received successfully.\",\n        failure_label: 'Phone number wasn’t received.'\n    }\n}\n\nconst payloadPrivateNote = {\n    content_type: 'text',\n    message_type: 'outgoing',\n  disable_change_status: true,\n   private: true\n};\nconst isSuccessLabel = msg.statusCode && [200, 201].includes(msg.statusCode);\npayloadPrivateNote.content = isSuccessLabel ? privatNote[lang].success_label : privatNote[lang].failure_label;\n\nmsg.url = `${novatalksUrl}/api/v1/accounts/${novatalksAccountId}/integrations/conversations/${chatId}/messages`;\nmsg.method = 'post';\nmsg.headers = {\n    \"api_access_token\": token\n};\nmsg.payload = payloadPrivateNote;\nreturn msg;\n\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1120,
+        "y": 100,
+        "wires": [
+            [
+                "81f1c2e00ba43f63"
+            ]
+        ]
+    },
+    {
+        "id": "81f1c2e00ba43f63",
+        "type": "http request",
+        "z": "e68505ad609a726f",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1310,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e7fc828e9560a768",
+        "type": "http request",
+        "z": "e68505ad609a726f",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 690,
+        "y": 180,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1e90f8bd314369c9",
+        "type": "function",
+        "z": "e68505ad609a726f",
+        "name": "set private note",
+        "func": "const configId = msg.configId;\nconst novatalksUrl = global.get(`${configId}-novatalksUrl`);\nconst novatalksAccountId = global.get(`${configId}-novatalksAccountId`);\nconst token = global.get(`${configId}-novatalksToken`);\nconst chatContext = msg.chat();\nconst chatVariables = await chatContext.all();\nconst lang = chatVariables.lang;\nconst { chatId } = msg.originalMessage;\n\nconst privatNote = {\n    ua: {\n        label: 'Функція не підтримується в даному каналі.'\n    },\n    ru: {\n        label: \"Функция не поддерживается в этом канале.\"\n    },\n    en: {\n        label: \"The function is not supported in this channel.\"\n    }\n}\n\nmsg.url = `${novatalksUrl}/api/v1/accounts/${novatalksAccountId}/integrations/conversations/${chatId}/messages`;\nmsg.method = 'post';\nmsg.headers = {\n    \"api_access_token\": token\n};\nmsg.payload = {\n    content_type: 'text',\n    message_type: 'outgoing',\n disable_change_status: true,\n   content: privatNote[lang].label,\n    private: true\n};\nreturn msg;\n\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 180,
+        "wires": [
+            [
+                "e7fc828e9560a768"
+            ]
+        ]
+    },
+    {
+        "id": "ca8eab91f52f2ff9",
+        "type": "function",
+        "z": "e68505ad609a726f",
+        "name": "Send Phone Message Factory",
+        "func": "const chatContext = msg.chat();\nconst chatVariables = await chatContext.all();\nconst lang = chatVariables.lang;\nconst message = chatVariables.chatBotSettings.main_settings.transfer_settings.language[lang].transfer_message;\nconst transportToSend = msg.originalMessage.conversation?.additional_attributes?.contactSource\n\nif (transportToSend === 'telegram') {\n    msg.payload.type = 'reset-buttons';\n} else {\n    msg.payload.type = 'message';\n}\n\nconst phoneMessage = {\n    ua: {\n        success_label: 'Номер телефону успішно отримано.',\n        failure_label: 'Номер телефону не отримано.'\n    },\n    ru: {\n        success_label: \"Номер телефона успешно получен.\",\n        failure_label: 'Номер телефона не получен.'\n    },\n    en: {\n        success_label: \"Phone number received successfully.\",\n        failure_label: 'Phone number wasn’t received.'\n    }\n}\n\nconst isSuccessLabel = msg.statusCode && [200, 201].includes(msg.statusCode);\nmsg.payload.content = isSuccessLabel ? phoneMessage[lang].success_label : phoneMessage[lang].failure_label;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1510,
+        "y": 180,
+        "wires": [
+            [
+                "1f01b266e1dac00e"
+            ]
+        ]
+    },
+    {
+        "id": "1f01b266e1dac00e",
+        "type": "chatbot-chatwoot-botagent-send",
+        "z": "e68505ad609a726f",
+        "name": "Bot Sender",
+        "bot": "50a12b5a8f843fa0",
+        "botProduction": "50a12b5a8f843fa0",
+        "track": false,
+        "passThrough": false,
+        "errorOutput": false,
+        "disableChangeStatus": true,
+        "outputs": 0,
+        "x": 1750,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "158eacd927c5c548",
+        "type": "chatbot-push-message",
+        "z": "e68505ad609a726f",
+        "x": 600,
+        "y": 40,
+        "wires": [
+            [
+                "23579783c596857d"
+            ]
+        ]
+    },
+    {
+        "id": "ce50f74551713c7c",
+        "type": "chatbot-pop-message",
+        "z": "e68505ad609a726f",
+        "x": 1200,
+        "y": 40,
+        "wires": [
+            [
+                "ca8eab91f52f2ff9"
+            ]
+        ]
+    },
+    {
+        "id": "9af426a9f19bc669",
+        "type": "chatbot-pop-message",
+        "z": "e68505ad609a726f",
+        "x": 1020,
+        "y": 240,
+        "wires": [
+            [
+                "ca8eab91f52f2ff9"
+            ]
+        ]
+    },
+    {
+        "id": "ddd5b4b765cb66a0",
+        "type": "subflow",
+        "name": "Macros Subflow: get email",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 60,
+                "y": 60,
+                "wires": [
+                    {
+                        "id": "33c264fb5d376ba4"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 1520,
+                "y": 120,
+                "wires": [
+                    {
+                        "id": "e49eea61418493ab",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [],
+        "meta": {},
+        "color": "#C0DEED"
+    },
+    {
+        "id": "84b34a1583431b9a",
+        "type": "chatbot-chatwoot-botagent-send",
+        "z": "ddd5b4b765cb66a0",
+        "name": "Bot Sender",
+        "bot": "50a12b5a8f843fa0",
+        "botProduction": "50a12b5a8f843fa0",
+        "track": true,
+        "passThrough": false,
+        "errorOutput": false,
+        "disableChangeStatus": false,
+        "outputs": 1,
+        "x": 450,
+        "y": 60,
+        "wires": [
+            [
+                "1ad175b61c752cf0"
+            ]
+        ]
+    },
+    {
+        "id": "1ad175b61c752cf0",
+        "type": "function",
+        "z": "ddd5b4b765cb66a0",
+        "name": "update contact email",
+        "func": "const configId = msg.configId;\nconst novatalksUrl = global.get(`${configId}-novatalksUrl`);\nconst novatalksAccountId = global.get(`${configId}-novatalksAccountId`);\nconst token = global.get(`${configId}-novatalksToken`);\nconst { id: contactId, type } = msg.originalMessage.sender;\nconst { content} = msg.payload;\n\nconst isEmailOrEmpty = (value) => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$/i.test(value);\n\nif (contactId && type === 'contact' && isEmailOrEmpty(content)) {\n    msg.url = `${novatalksUrl}/api/v1/accounts/${novatalksAccountId}/contacts/${contactId}`;\n    msg.method = 'patch';\n    msg.payload = { email: content };\n    msg.headers = {\n        \"api_access_token\": token\n    };\n    return [msg, null];\n} else {\n    return [null, msg];\n}\n\n\n\n\n\n\n\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 700,
+        "y": 60,
+        "wires": [
+            [
+                "7799bd5f1127ec88"
+            ],
+            [
+                "e51f7850fd1f99b2"
+            ]
+        ]
+    },
+    {
+        "id": "7799bd5f1127ec88",
+        "type": "http request",
+        "z": "ddd5b4b765cb66a0",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 970,
+        "y": 20,
+        "wires": [
+            [
+                "e51f7850fd1f99b2"
+            ]
+        ]
+    },
+    {
+        "id": "e51f7850fd1f99b2",
+        "type": "function",
+        "z": "ddd5b4b765cb66a0",
+        "name": "set private note",
+        "func": "const configId = msg.configId;\nconst novatalksUrl = global.get(`${configId}-novatalksUrl`);\nconst novatalksAccountId = global.get(`${configId}-novatalksAccountId`);\nconst token = global.get(`${configId}-novatalksToken`);\nconst chatContext = msg.chat();\nconst chatVariables = await chatContext.all();\nconst lang = chatVariables.lang;\nconst {  chatId } = msg.originalMessage;\n\n\nconst privatNote = {\n    ua: {\n        success_label: 'Email успішно отримано.',\n        failure_label: 'Email не отримано.'\n    },\n    ru: {\n        success_label: \"Email успешно получен.\",\n        failure_label: 'Email не получен.'\n    },\n    en: {\n        success_label: \"Email received successfully.\",\n        failure_label: 'Email wasn’t received.'\n    }\n}\n\n\nconst payloadPrivateNote = {\n    content_type: 'text',\n    message_type: 'outgoing',\n disable_change_status: true,\n    private: true\n};\nconst isSuccessLabel = msg.statusCode && [200, 201].includes(msg.statusCode);\npayloadPrivateNote.content = isSuccessLabel ? privatNote[lang].success_label : privatNote[lang].failure_label;\n\nmsg.url = `${novatalksUrl}/api/v1/accounts/${novatalksAccountId}/integrations/conversations/${chatId}/messages`;\nmsg.method = 'post';\nmsg.headers = {\n    \"api_access_token\": token\n};\nmsg.payload = payloadPrivateNote;\nreturn msg;\n\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1160,
+        "y": 60,
+        "wires": [
+            [
+                "e49eea61418493ab"
+            ]
+        ]
+    },
+    {
+        "id": "33c264fb5d376ba4",
+        "type": "function",
+        "z": "ddd5b4b765cb66a0",
+        "name": "Message Factory",
+        "func": "const { additional_attributes, action_additional_params } = msg.originalMessage;\nconst transport = additional_attributes.contactSource;\nconst chatContext = msg.chat();\nconst chatVariables = await chatContext.all();\nconst lang = chatVariables.lang;\nconst actionAdditionalParams = action_additional_params;\nconsole.log(lang);\n\nactionAdditionalParams.forEach(function ({ key, value }) {\n    const itemLang = key.slice(-2);\n    if (lang === itemLang && key.startsWith(\"text_get_email_01\")) {\n        msg.payload.type = 'message';\n        msg.payload.content = value\n    }\n});\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 230,
+        "y": 60,
+        "wires": [
+            [
+                "84b34a1583431b9a",
+                "e0f14eddea68a2ae"
+            ]
+        ]
+    },
+    {
+        "id": "e49eea61418493ab",
+        "type": "http request",
+        "z": "ddd5b4b765cb66a0",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1350,
+        "y": 60,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e0f14eddea68a2ae",
+        "type": "debug",
+        "z": "ddd5b4b765cb66a0",
+        "name": "debug 13",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 460,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "6f5ebf07b4698867",
+        "type": "subflow",
+        "name": "Resolve Inactive",
+        "info": "",
+        "category": "ChatBotSettings",
+        "in": [
+            {
+                "x": 40,
+                "y": 200,
+                "wires": [
+                    {
+                        "id": "66d67d30d585c077"
+                    }
+                ]
+            }
+        ],
+        "out": [],
+        "env": [],
+        "meta": {},
+        "color": "#A6BBCF",
+        "inputLabels": [
+            "in"
+        ],
+        "icon": "font-awesome/fa-terminal"
+    },
+    {
+        "id": "295b10766ae3652b",
+        "type": "chatbot-chatwoot-conversation-switch",
+        "z": "6f5ebf07b4698867",
+        "name": "Event Switch",
+        "x": 610,
+        "y": 360,
+        "wires": [
+            [
+                "dd52574651cf0498"
+            ],
+            [
+                "dd52574651cf0498"
+            ],
+            [
+                "dd52574651cf0498"
+            ],
+            [
+                "dd52574651cf0498"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "fee1eda8827d8762",
+        "type": "redis-command",
+        "z": "6f5ebf07b4698867",
+        "server": "d46325238f978a73",
+        "command": "SET",
+        "name": "",
+        "topic": "",
+        "params": "",
+        "paramsType": "json",
+        "payloadType": "json",
+        "block": false,
+        "x": 1320,
+        "y": 380,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "27d5fcc76d053237",
+        "type": "function",
+        "z": "6f5ebf07b4698867",
+        "name": "set key USER",
+        "func": "const chatVariables = await msg.chat().all();\nconst configId = msg.configId;\nconst timeout = chatVariables.chatBotSettings.main_settings.timeout_settings.client_inactivity;\n\nmsg.payload =[\n    `clientInactive:${configId}:${msg.originalMessage.conversation.id}`,\n    msg.payload.ts,\n    \"EX\",\n    timeout * 60\n];\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1140,
+        "y": 380,
+        "wires": [
+            [
+                "fee1eda8827d8762"
+            ]
+        ]
+    },
+    {
+        "id": "7ae02768e00396f3",
+        "type": "http request",
+        "z": "6f5ebf07b4698867",
+        "name": "",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "senderr": false,
+        "x": 990,
+        "y": 140,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6ea50b9eda841b09",
+        "type": "function",
+        "z": "6f5ebf07b4698867",
+        "name": "set req toggle_status",
+        "func": "if(msg.payload !== \"expired\") return [null, msg];\n\nconst configId = msg.topic.split(\":\")[2];\nconst novatalksUrl = global.get(`${configId}-novatalksUrl`);\nconst novatalksAccountId = global.get(`${configId}-novatalksAccountId`);\nconst token = global.get(`${configId}-novatalksToken`);\n\nlet convId = msg.topic.split(\":\")[3];\nmsg.url = novatalksUrl + \"/api/v1/accounts/\"\n    + novatalksAccountId + \"/conversations/\"\n    + convId + \"/toggle_status\";\nmsg.payload = { \"status\": \"resolved\" };\nmsg.headers = { \"api_access_token\": token };\nreturn [msg, null];",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 780,
+        "y": 140,
+        "wires": [
+            [
+                "7ae02768e00396f3"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "61786d954642242d",
+        "type": "comment",
+        "z": "6f5ebf07b4698867",
+        "name": "Inactive timeout",
+        "info": "Expire = Inactive timeout\nin seconds!!!\nAfter Expire time record will be delete from redis\nand status will change to resolve\n\n",
+        "x": 800,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "9c8fcbbde1b6c29d",
+        "type": "comment",
+        "z": "6f5ebf07b4698867",
+        "name": "@0(number) = № of db redis",
+        "info": "",
+        "x": 560,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "aa3cd4342a660b79",
+        "type": "switch",
+        "z": "6f5ebf07b4698867",
+        "name": "is private",
+        "property": "originalMessage.private",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "false"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 440,
+        "y": 360,
+        "wires": [
+            [
+                "295b10766ae3652b"
+            ]
+        ]
+    },
+    {
+        "id": "8d116ceb744141e4",
+        "type": "redis-in",
+        "z": "6f5ebf07b4698867",
+        "server": "d46325238f978a73",
+        "command": "psubscribe",
+        "name": "lastMsg event",
+        "topic": "__keyspace@0__:clientInactive:*",
+        "obj": true,
+        "timeout": 0,
+        "x": 550,
+        "y": 100,
+        "wires": [
+            [
+                "6ea50b9eda841b09",
+                "834d31c36adcf651"
+            ]
+        ]
+    },
+    {
+        "id": "7afdd6b79e756aaa",
+        "type": "switch",
+        "z": "6f5ebf07b4698867",
+        "name": "message || event",
+        "property": "payload.type",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "conversation_event",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 2,
+        "x": 250,
+        "y": 360,
+        "wires": [
+            [
+                "b06866360da29d3e"
+            ],
+            [
+                "aa3cd4342a660b79"
+            ]
+        ]
+    },
+    {
+        "id": "157770fa5350bcfa",
+        "type": "redis-command",
+        "z": "6f5ebf07b4698867",
+        "server": "d46325238f978a73",
+        "command": "DEL",
+        "name": "del key",
+        "topic": "",
+        "params": "[]",
+        "paramsType": "json",
+        "payloadType": "json",
+        "block": false,
+        "x": 700,
+        "y": 480,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1a6b9bc7bb903fd6",
+        "type": "function",
+        "z": "6f5ebf07b4698867",
+        "name": "set key",
+        "func": "const configId = msg.configId;\nmsg.topic = `clientInactive:${configId}:${msg.originalMessage.id}`;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 560,
+        "y": 460,
+        "wires": [
+            [
+                "157770fa5350bcfa"
+            ]
+        ]
+    },
+    {
+        "id": "dd52574651cf0498",
+        "type": "switch",
+        "z": "6f5ebf07b4698867",
+        "name": "incoming || outgoing",
+        "property": "originalMessage.message_type",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "incoming",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "outgoing",
+                "vt": "str"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 2,
+        "x": 820,
+        "y": 360,
+        "wires": [
+            [
+                "67c6b0bf5eb34dfa"
+            ],
+            [
+                "27d5fcc76d053237",
+                "e4de357cc6540e89"
+            ]
+        ]
+    },
+    {
+        "id": "d3034fdd8c7a8569",
+        "type": "function",
+        "z": "6f5ebf07b4698867",
+        "name": "set key AGENT(bot)",
+        "func": "const chatVariables = await msg.chat().all();\nconst timeout = chatVariables.chatBotSettings.main_settings.timeout_settings.agent_inactivity;\nconst configId = msg.configId;\nmsg.payload =[\n    `agentInactive:${configId}:${msg.originalMessage.conversation.id}`,\n    msg.payload.ts,\n    \"EX\",\n    timeout * 60\n];\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1160,
+        "y": 420,
+        "wires": [
+            [
+                "fee1eda8827d8762"
+            ]
+        ]
+    },
+    {
+        "id": "a530916eb781bc90",
+        "type": "redis-in",
+        "z": "6f5ebf07b4698867",
+        "server": "d46325238f978a73",
+        "command": "psubscribe",
+        "name": "lastMsg event",
+        "topic": "__keyspace@0__:agentInactive:*",
+        "obj": true,
+        "timeout": 0,
+        "x": 550,
+        "y": 140,
+        "wires": [
+            [
+                "6ea50b9eda841b09",
+                "834d31c36adcf651",
+                "04fb401dcd51a2f6"
+            ]
+        ]
+    },
+    {
+        "id": "a7b49a38d99b5552",
+        "type": "function",
+        "z": "6f5ebf07b4698867",
+        "name": "set key",
+        "func": "const configId = msg.configId;\nmsg.topic = `agentInactive:${configId}:${msg.originalMessage.id}`;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 560,
+        "y": 500,
+        "wires": [
+            [
+                "157770fa5350bcfa"
+            ]
+        ]
+    },
+    {
+        "id": "834d31c36adcf651",
+        "type": "function",
+        "z": "6f5ebf07b4698867",
+        "name": "how close ",
+        "func": "if (msg.payload !== \"expired\") return null;\nlet convId = msg.topic.split(\":\")[3];\nlet reason = msg.topic.split(\":\")[1] == \"clientInactive\" ? 'user' : 'agent';\nglobal.set(`closeId:${convId}`, reason);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 740,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "67c6b0bf5eb34dfa",
+        "type": "chatbot-chatwoot-conversation-state",
+        "z": "6f5ebf07b4698867",
+        "name": "",
+        "isAnswered": false,
+        "isTransferred": true,
+        "answerTimeout": "0",
+        "x": 1000,
+        "y": 280,
+        "wires": [
+            [
+                "d3034fdd8c7a8569",
+                "073b8e13bdf9ae0c"
+            ],
+            [
+                "27d5fcc76d053237",
+                "e4de357cc6540e89"
+            ]
+        ]
+    },
+    {
+        "id": "fae7dbd0e93d20d7",
+        "type": "comment",
+        "z": "6f5ebf07b4698867",
+        "name": "not transfered user msg = bot msg",
+        "info": "",
+        "x": 1040,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "b06866360da29d3e",
+        "type": "switch",
+        "z": "6f5ebf07b4698867",
+        "name": "event switch",
+        "property": "originalMessage.event",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "conversation_status_changed",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 250,
+        "y": 420,
+        "wires": [
+            [
+                "9ac3b63aedf59a6d"
+            ]
+        ]
+    },
+    {
+        "id": "9ac3b63aedf59a6d",
+        "type": "switch",
+        "z": "6f5ebf07b4698867",
+        "name": "event switch (open/resolved/snoozed)",
+        "property": "originalMessage.status",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "open",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "resolved",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "snoozed",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 3,
+        "x": 310,
+        "y": 480,
+        "wires": [
+            [],
+            [
+                "1a6b9bc7bb903fd6",
+                "a7b49a38d99b5552"
+            ],
+            [
+                "1a6b9bc7bb903fd6",
+                "a7b49a38d99b5552"
+            ]
+        ]
+    },
+    {
+        "id": "2f26f3609893ee99",
+        "type": "redis-command",
+        "z": "6f5ebf07b4698867",
+        "server": "d46325238f978a73",
+        "command": "DEL",
+        "name": "del key",
+        "topic": "",
+        "params": "[]",
+        "paramsType": "json",
+        "payloadType": "json",
+        "block": false,
+        "x": 1320,
+        "y": 340,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "073b8e13bdf9ae0c",
+        "type": "function",
+        "z": "6f5ebf07b4698867",
+        "name": "del user key",
+        "func": "const configId = msg.configId;\nmsg.topic = `clientInactive:${configId}:${msg.originalMessage.conversation.id}`;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1130,
+        "y": 460,
+        "wires": [
+            [
+                "2f26f3609893ee99"
+            ]
+        ]
+    },
+    {
+        "id": "e4de357cc6540e89",
+        "type": "function",
+        "z": "6f5ebf07b4698867",
+        "name": "del agent key",
+        "func": "const configId = msg.configId;\nmsg.topic = `agentInactive:${configId}:${msg.originalMessage.conversation.id}`;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1130,
+        "y": 340,
+        "wires": [
+            [
+                "2f26f3609893ee99"
+            ]
+        ]
+    },
+    {
+        "id": "04fb401dcd51a2f6",
+        "type": "debug",
+        "z": "6f5ebf07b4698867",
+        "d": true,
+        "name": "REDIS EVENTS",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1000,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "66d67d30d585c077",
+        "type": "subflow:9cca3030a7dc2d60",
+        "z": "6f5ebf07b4698867",
+        "name": "",
+        "x": 120,
+        "y": 280,
+        "wires": [
+            [
+                "7afdd6b79e756aaa"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "d46325238f978a73",
+        "type": "redis-config",
+        "name": "Local",
+        "options": "{\"port\":6379,\"host\":\"ntk-ua-presentation-redis\",\"family\":4,\"db\":0}",
+        "cluster": false,
+        "optionsType": "json"
+    },
+    {
+        "id": "86d9816ca9c8075e",
+        "type": "subflow",
+        "name": "CSAT (Custom)",
+        "info": "",
+        "category": "ChatBotSettings",
+        "in": [
+            {
+                "x": 50,
+                "y": 30,
+                "wires": []
+            }
+        ],
+        "out": [],
+        "env": [],
+        "meta": {},
+        "color": "#A6BBCF",
+        "icon": "font-awesome/fa-code"
+    },
+    {
+        "id": "d7b251862f91435f",
+        "type": "subflow",
+        "name": "End_Dialog (Custom)",
+        "info": "",
+        "category": "ChatBotSettings",
+        "in": [
+            {
+                "x": 60,
+                "y": 40,
+                "wires": [
+                    {
+                        "id": "72dda1afe5e16194"
+                    },
+                    {
+                        "id": "9a60d0b60c2a2d05"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 160,
+                "y": 30,
+                "wires": [
+                    {
+                        "id": "d7b251862f91435f",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [],
+        "meta": {},
+        "color": "#A6BBCF",
+        "icon": "font-awesome/fa-code"
+    },
+    {
+        "id": "72dda1afe5e16194",
+        "type": "function",
+        "z": "d7b251862f91435f",
+        "name": "Set Last Agent",
+        "func": "let contextchat = msg.chat();\nlet lastAgentId;\ntry{\n    lastAgentId = msg.originalMessage.meta.assignee.id;\n}catch(err){\n    lastAgentId = 0;\n}\nawait contextchat.set('chatwoot-botagent_lastAgentId', lastAgentId);\nawait contextchat.remove('agentAssigned');\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 260,
+        "y": 180,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "9a60d0b60c2a2d05",
+        "type": "function",
+        "z": "d7b251862f91435f",
+        "name": "Set Close Timestamp",
+        "func": "let contextchat = msg.chat();\nlet currenttime = Date.now();\nawait contextchat.set('chatwoot-botagent_currentConversationClosed_at' , currenttime);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 280,
+        "y": 220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "88d44d187c507e3a",
+        "type": "subflow",
+        "name": "CSAT",
+        "info": "",
+        "category": "ChatBotSettings",
+        "in": [
+            {
+                "x": 80,
+                "y": 280,
+                "wires": [
+                    {
+                        "id": "8c6c971fe4e775d4"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 2210,
+                "y": 360,
+                "wires": [
+                    {
+                        "id": "b927cdfa7e16a62e",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [],
+        "meta": {},
+        "color": "#A6BBCF",
+        "outputLabels": [
+            "ELSE"
+        ],
+        "icon": "font-awesome/fa-code"
+    },
+    {
+        "id": "c5b0e124daeb8520",
+        "type": "function",
+        "z": "88d44d187c507e3a",
+        "name": "send CSAT",
+        "func": "const configId = msg.configId;\nconst novatalksUrl = global.get(`${configId}-novatalksUrl`);\nconst novatalksAccountId = global.get(`${configId}-novatalksAccountId`);\nconst token = global.get(`${configId}-novatalksToken`);\n\nmsg.method = 'post';\nmsg.url = `${novatalksUrl}/api/v1/accounts/${novatalksAccountId}/csat`;\n// const rating = parseInt(msg.payload.content.split('-')[1]);\nconst chatContext = msg.chat();\nconst lang = await chatContext.get('lang');\nconst rating = msg.csatCode;\nmsg.payload = {\n    contact_id: msg.originalMessage.sender.id,\n    conversation_id: msg.payload.chatId,\n    message_id: msg.originalMessage.id,\n    rating: parseInt(rating),\n};\n\nmsg.headers = {\n    \"api_access_token\": token\n};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 850,
+        "y": 40,
+        "wires": [
+            [
+                "9f1ba0c3f1d54201"
+            ]
+        ]
+    },
+    {
+        "id": "9f1ba0c3f1d54201",
+        "type": "http request",
+        "z": "88d44d187c507e3a",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1010,
+        "y": 40,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "9e23704379611ff0",
+        "type": "chatbot-chatwoot-botagent-send",
+        "z": "88d44d187c507e3a",
+        "name": "Bot Sender",
+        "bot": "50a12b5a8f843fa0",
+        "botProduction": "50a12b5a8f843fa0",
+        "track": true,
+        "passThrough": false,
+        "errorOutput": false,
+        "disableChangeStatus": true,
+        "outputs": 1,
+        "x": 430,
+        "y": 280,
+        "wires": [
+            [
+                "200e84bb8bf452f0"
+            ]
+        ]
+    },
+    {
+        "id": "421c73da87ca9f98",
+        "type": "chatbot-chatwoot-botagent-send",
+        "z": "88d44d187c507e3a",
+        "name": "Bot Sender",
+        "bot": "50a12b5a8f843fa0",
+        "botProduction": "50a12b5a8f843fa0",
+        "track": false,
+        "passThrough": false,
+        "errorOutput": false,
+        "disableChangeStatus": true,
+        "outputs": 0,
+        "x": 1110,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "f48a8dbadd543aba",
+        "type": "function",
+        "z": "88d44d187c507e3a",
+        "name": "get current labels",
+        "func": "const configId = msg.configId;\nconst novatalksUrl = global.get(`${configId}-novatalksUrl`);\nconst novatalksAccountId = global.get(`${configId}-novatalksAccountId`);\nconst token = global.get(`${configId}-novatalksToken`);\n\nmsg.url = `${novatalksUrl}/api/v1/accounts/${novatalksAccountId}/conversations/${msg.payload.chatId}/labels`;\nmsg.headers = { api_access_token: token };\nmsg.method = 'get';\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 870,
+        "y": 120,
+        "wires": [
+            [
+                "ddfccf9b143723db"
+            ]
+        ]
+    },
+    {
+        "id": "ddfccf9b143723db",
+        "type": "http request",
+        "z": "88d44d187c507e3a",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1050,
+        "y": 120,
+        "wires": [
+            [
+                "f00256ac89130ac8"
+            ]
+        ]
+    },
+    {
+        "id": "f00256ac89130ac8",
+        "type": "function",
+        "z": "88d44d187c507e3a",
+        "name": "delete csat_ labels",
+        "func": "const configId = msg.configId;\n\nconst labels = msg.payload.payload;\nconst token = global.get(`${configId}-novatalksToken`);\n\nconst labelsToDelete = labels.filter((elem) => {\n    if (elem.includes('csat_') && elem !== 'csat_' + msg.csatCode) return true;\n    return false;\n});\nif (labelsToDelete.length !== 0) {\n    msg.payload = { labels: labelsToDelete };\n    msg.url += '/delete';\n    msg.method = 'post';\n    msg.headers = { api_access_token: token };\n    return msg;\n} else {\n    return null;\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1090,
+        "y": 80,
+        "wires": [
+            [
+                "f1a09c35e45f134d"
+            ]
+        ]
+    },
+    {
+        "id": "f1a09c35e45f134d",
+        "type": "http request",
+        "z": "88d44d187c507e3a",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1050,
+        "y": 160,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f7200dff40863075",
+        "type": "function",
+        "z": "88d44d187c507e3a",
+        "name": "set csat label",
+        "func": "const chatContext = msg.chat();\nconst lang = await chatContext.get('lang');\nconst rating = msg.csatCode\nconst setCsat = 'csat_' + rating;\nconst configId = msg.configId;\nconst novatalksUrl = global.get(`${configId}-novatalksUrl`);\nconst novatalksAccountId = global.get(`${configId}-novatalksAccountId`);\nconst token = global.get(`${configId}-novatalksToken`);\n\nmsg.url = `${novatalksUrl}/api/v1/accounts/${novatalksAccountId}/conversations/${msg.payload.chatId}/labels`;\nmsg.method = 'post';\nmsg.payload = { labels: [setCsat] };\nmsg.headers = { api_access_token: token };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 850,
+        "y": 160,
+        "wires": [
+            [
+                "f1a09c35e45f134d"
+            ]
+        ]
+    },
+    {
+        "id": "8c6c971fe4e775d4",
+        "type": "function",
+        "z": "88d44d187c507e3a",
+        "name": "CSAT Message Factory",
+        "func": "const transport = msg.originalMessage.additional_attributes.contactSource;\nconst chatContext = msg.chat();\nconst chatVariables = await chatContext.all();\nconst lang = chatVariables.lang;\nconst startMessage = chatVariables.chatBotSettings.csat.language[lang].start_message;\nlet csatButtons = chatVariables.chatBotSettings.csat.language[lang].buttons;\ncsatButtons = csatButtons.sort((a, b) => {\n    return a.button_code > b.button_code ? -1 : 1;\n})\nmsg.payload.content = startMessage;\nswitch (transport) {\n    case 'telegram':\n    case 'viber': {\n        msg.payload.type = 'buttons';\n        msg.payload.buttons = csatButtons.map((btn) => {\n            return {\n                type: \"keyboardButton\",\n                label: btn.button_label,\n                value: btn.button_code,\n                bgColor: '#99ccff'\n            }\n        });\n        msg.payload.buttons.splice(1, 0, { type: 'newline' });\n        msg.payload.buttons.splice(4, 0, { type: 'newline' });\n        break;\n    }\n    case 'chat':\n    case 'instagram':\n    case 'messenger': {\n        msg.payload.type = 'quick-replies';\n        msg.payload.buttons = csatButtons.map((btn) => {\n            return {\n                type: \"quick-reply\",\n                label: btn.button_label,\n                value: btn.button_code,\n            }\n        });\n        break;\n    }\n    default: {\n        msg.payload.type = 'message';\n        let buttonsString = '\\n';\n        for (let btn of csatButtons) {\n            buttonsString += `${btn.button_code} - ${btn.button_label}\\n`;\n        }\n        msg.payload.content += buttonsString;\n        break;\n    }\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 230,
+        "y": 280,
+        "wires": [
+            [
+                "9e23704379611ff0"
+            ]
+        ]
+    },
+    {
+        "id": "200e84bb8bf452f0",
+        "type": "function",
+        "z": "88d44d187c507e3a",
+        "name": "Check CSAT",
+        "func": "if (msg.payload.type !== 'message') {\n    return [null, msg];\n}\nconst userMessage = msg.payload.content;\nconst chatContext = msg.chat();\nconst contextVariables = await chatContext.all();\nconst lang = contextVariables.lang;\nconst csatButtons = contextVariables.chatBotSettings.csat.language[lang].buttons;\nconst availableValues = csatButtons.map((btn) => {\n    return btn.button_label;\n});\nconst availableCodes = csatButtons.map((btn) => {\n    return String(btn.button_code);\n});\nif (availableValues.includes(userMessage) || availableCodes.includes(userMessage)) {\n    msg.csatCode = csatButtons.find((btn) => {\n        return userMessage === btn.button_label || userMessage == btn.button_code;\n    }).button_code;\n    return [msg, null];\n}\nreturn [null, msg];",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 610,
+        "y": 280,
+        "wires": [
+            [
+                "c5b0e124daeb8520",
+                "f48a8dbadd543aba",
+                "3169016c4678ce5a",
+                "f7200dff40863075",
+                "2b4c2e91c9f09c36",
+                "438717b6ebb5c9a3",
+                "ce78ced905562cec"
+            ],
+            [
+                "d8e44322a0efc5a9"
+            ]
+        ],
+        "outputLabels": [
+            "match",
+            "no match"
+        ],
+        "icon": "font-awesome/fa-code"
+    },
+    {
+        "id": "3169016c4678ce5a",
+        "type": "function",
+        "z": "88d44d187c507e3a",
+        "name": "CSAT end message factory",
+        "func": "const chatContext = msg.chat();\nconst chatVariables = await chatContext.all();\nconsole.log(chatVariables);\nconst lang = chatVariables.lang;\nconst endCsatMessage = chatVariables.chatBotSettings.csat.language[lang].end_message;\nconst transportToSend = msg.originalMessage.conversation?.additional_attributes?.contactSource\n\nif (transportToSend === 'telegram') {\n    msg.payload.type = 'reset-buttons';\n} else {\n    msg.payload.type = 'message';\n}\n\nmsg.payload.content = endCsatMessage;\n// await chatContext.remove('csatSettings');\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 900,
+        "y": 200,
+        "wires": [
+            [
+                "421c73da87ca9f98"
+            ]
+        ]
+    },
+    {
+        "id": "2b4c2e91c9f09c36",
+        "type": "chatbot-context",
+        "z": "88d44d187c507e3a",
+        "command": "delete",
+        "fieldValue": "",
+        "fieldType": "str",
+        "fieldName": "chatBotSettings",
+        "x": 860,
+        "y": 240,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d8e44322a0efc5a9",
+        "type": "chatbot-context",
+        "z": "88d44d187c507e3a",
+        "command": "delete",
+        "fieldValue": "",
+        "fieldType": "str",
+        "fieldName": "chatBotSettings",
+        "x": 200,
+        "y": 340,
+        "wires": [
+            [
+                "66d17fae4c652a3e"
+            ]
+        ]
+    },
+    {
+        "id": "55f3314afd421aaa",
+        "type": "function",
+        "z": "88d44d187c507e3a",
+        "g": "559f8374b21053cf",
+        "name": "set req bot settings",
+        "func": "const configId = msg.configId;\nconst novatalksUrl = global.get(`${configId}-novatalksUrl`);\nconst novatalksAccountId = global.get(`${configId}-novatalksAccountId`);\nconst token = global.get(`${configId}-novatalksToken`);\nconst conversationId = msg.payload.chatId;\n\nmsg.url = `${novatalksUrl}/api/v1/accounts/${novatalksAccountId}/integrations/conversations/${conversationId}/chatbot_settings`;\n// const rating = parseInt(msg.payload.content.split('-')[1]);\n\nmsg.headers = {\n    \"api_access_token\": token\n};\nmsg.method = 'get';\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 590,
+        "y": 360,
+        "wires": [
+            [
+                "a9990ad48650c56d"
+            ]
+        ]
+    },
+    {
+        "id": "a9990ad48650c56d",
+        "type": "http request",
+        "z": "88d44d187c507e3a",
+        "g": "559f8374b21053cf",
+        "name": "",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 770,
+        "y": 360,
+        "wires": [
+            [
+                "f911e60bfcaf78fe"
+            ]
+        ]
+    },
+    {
+        "id": "66d17fae4c652a3e",
+        "type": "chatbot-push-message",
+        "z": "88d44d187c507e3a",
+        "g": "559f8374b21053cf",
+        "x": 400,
+        "y": 360,
+        "wires": [
+            [
+                "55f3314afd421aaa"
+            ]
+        ]
+    },
+    {
+        "id": "540d6b8faa982f75",
+        "type": "chatbot-pop-message",
+        "z": "88d44d187c507e3a",
+        "g": "559f8374b21053cf",
+        "x": 1100,
+        "y": 360,
+        "wires": [
+            [
+                "34e4587d6bf436ed"
+            ]
+        ]
+    },
+    {
+        "id": "f911e60bfcaf78fe",
+        "type": "function",
+        "z": "88d44d187c507e3a",
+        "g": "559f8374b21053cf",
+        "name": "set settings",
+        "func": "const chatContext = msg.chat();\nawait chatContext.set({\n    'chatBotSettings': msg.payload\n});\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 930,
+        "y": 360,
+        "wires": [
+            [
+                "540d6b8faa982f75"
+            ]
+        ]
+    },
+    {
+        "id": "438717b6ebb5c9a3",
+        "type": "function",
+        "z": "88d44d187c507e3a",
+        "name": "set csat dialog label",
+        "func": "const chatContext = msg.chat();\nconst lang = await chatContext.get('lang');\nconst rating = msg.csatCode\nconst setCsat = 'csat_' + rating;\nconst configId = msg.configId;\nconst novatalksUrl = global.get(`${configId}-novatalksUrl`);\nconst novatalksAccountId = global.get(`${configId}-novatalksAccountId`);\nconst token = global.get(`${configId}-novatalksToken`);\nconst dialogId = await msg.chat().get('dialog_id');\n\n\nmsg.url = `${novatalksUrl}/api/v1/accounts/${novatalksAccountId}/dialogs/${dialogId}/labels`;\nmsg.method = 'post';\nmsg.payload = { labels: [setCsat] };\nmsg.headers = { api_access_token: token };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 870,
+        "y": 80,
+        "wires": [
+            [
+                "9f1ba0c3f1d54201"
+            ]
+        ]
+    },
+    {
+        "id": "34e4587d6bf436ed",
+        "type": "chatbot-push-message",
+        "z": "88d44d187c507e3a",
+        "g": "559f8374b21053cf",
+        "x": 1280,
+        "y": 360,
+        "wires": [
+            [
+                "30050690300c16db"
+            ]
+        ]
+    },
+    {
+        "id": "bda1bf4091269c2b",
+        "type": "http request",
+        "z": "88d44d187c507e3a",
+        "g": "559f8374b21053cf",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "senderr": false,
+        "x": 1630,
+        "y": 360,
+        "wires": [
+            [
+                "d259861877dc9cf5"
+            ]
+        ]
+    },
+    {
+        "id": "30050690300c16db",
+        "type": "function",
+        "z": "88d44d187c507e3a",
+        "g": "559f8374b21053cf",
+        "name": "set req calendar",
+        "func": "const chatVariables = await msg.chat().all();\nconst calendarId = chatVariables.chatBotSettings.agent_schedule.calendar.id;\nconst configId = msg.configId;\nconst novatalksUrl = global.get(`${configId}-novatalksUrl`);\nconst novatalksAccountId = global.get(`${configId}-novatalksAccountId`);\nconst token = global.get(`${configId}-novatalksToken`);\nmsg.url = `${novatalksUrl}/api/v1/accounts/${novatalksAccountId}/calendars/${calendarId}/validation_date`;\nmsg.headers = { api_access_token: token };\nmsg.method = 'post';\nmsg.payload = {\n    date: new Date().toISOString()\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1460,
+        "y": 360,
+        "wires": [
+            [
+                "bda1bf4091269c2b"
+            ]
+        ]
+    },
+    {
+        "id": "ce78ced905562cec",
+        "type": "chatbot-context",
+        "z": "88d44d187c507e3a",
+        "command": "delete",
+        "fieldValue": "",
+        "fieldType": "str",
+        "fieldName": "workingHoursValidate",
+        "x": 860,
+        "y": 280,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d259861877dc9cf5",
+        "type": "function",
+        "z": "88d44d187c507e3a",
+        "g": "559f8374b21053cf",
+        "name": "set workingHoursValidate",
+        "func": "const chatContext = msg.chat();\nconst workingHoursValidate = msg.payload.validation;\n\nawait chatContext.set({\n    'workingHoursValidate': workingHoursValidate\n});\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1830,
+        "y": 360,
+        "wires": [
+            [
+                "b927cdfa7e16a62e"
+            ]
+        ]
+    },
+    {
+        "id": "b927cdfa7e16a62e",
+        "type": "chatbot-pop-message",
+        "z": "88d44d187c507e3a",
+        "g": "559f8374b21053cf",
+        "x": 2040,
+        "y": 360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "559f8374b21053cf",
+        "type": "group",
+        "z": "88d44d187c507e3a",
+        "name": "manualy update chatbot settings",
+        "style": {
+            "stroke": "#ff0000",
+            "label": true,
+            "color": "#0070c0",
+            "label-position": "n"
+        },
+        "nodes": [
+            "55f3314afd421aaa",
+            "a9990ad48650c56d",
+            "66d17fae4c652a3e",
+            "540d6b8faa982f75",
+            "f911e60bfcaf78fe",
+            "34e4587d6bf436ed",
+            "bda1bf4091269c2b",
+            "30050690300c16db",
+            "d259861877dc9cf5",
+            "b927cdfa7e16a62e"
+        ],
+        "x": 294,
+        "y": 319
+    },
+    {
+        "id": "25acad7fe46431ae",
+        "type": "subflow",
+        "name": "End_Dialog",
+        "info": "",
+        "category": "ChatBotSettings",
+        "in": [
+            {
+                "x": 100,
+                "y": 200,
+                "wires": [
+                    {
+                        "id": "7a93cd1379e368e1"
+                    },
+                    {
+                        "id": "1b01a37a777e9b5b"
+                    },
+                    {
+                        "id": "ade8a48635cfa914"
+                    },
+                    {
+                        "id": "1214ddcc71d40023"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 920,
+                "y": 180,
+                "wires": [
+                    {
+                        "id": "afe660feb1150e4d",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [],
+        "meta": {},
+        "color": "#A6BBCF",
+        "icon": "font-awesome/fa-code"
+    },
+    {
+        "id": "0f6fa6e8d43ff838",
+        "type": "chatbot-chatwoot-botagent-send",
+        "z": "25acad7fe46431ae",
+        "name": "End Sender",
+        "bot": "50a12b5a8f843fa0",
+        "botProduction": "50a12b5a8f843fa0",
+        "track": false,
+        "passThrough": true,
+        "errorOutput": false,
+        "disableChangeStatus": true,
+        "outputs": 1,
+        "x": 770,
+        "y": 140,
+        "wires": [
+            [
+                "afe660feb1150e4d"
+            ]
+        ]
+    },
+    {
+        "id": "7a93cd1379e368e1",
+        "type": "function",
+        "z": "25acad7fe46431ae",
+        "name": "Set Last Agent",
+        "func": "let contextchat = msg.chat();\nlet lastAgentId;\ntry{\n    lastAgentId = msg.originalMessage.meta.assignee.id;\n}catch(err){\n    lastAgentId = 0;\n}\nlet currenttime = Date.now();\nawait contextchat.set({\n    'chatwoot-botagent_lastAgentId': lastAgentId,\n    'chatwoot-botagent_currentConversationClosed_at': currenttime\n    });\n// node.warn(`last agent ${lastAgentId}`);\nawait contextchat.remove('agentAssigned');\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 180,
+        "y": 120,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "afe660feb1150e4d",
+        "type": "change",
+        "z": "25acad7fe46431ae",
+        "name": "clear message",
+        "rules": [
+            {
+                "t": "delete",
+                "p": "payload.type",
+                "pt": "msg"
+            },
+            {
+                "t": "delete",
+                "p": "payload.content",
+                "pt": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 800,
+        "y": 180,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5b487d94779cd372",
+        "type": "function",
+        "z": "25acad7fe46431ae",
+        "name": "End message factory",
+        "func": "let reason = global.get(`closeId:${msg.originalMessage.id}`);\nglobal.set(`closeId:${msg.originalMessage.id}`, undefined);\nconst chatContex = msg.chat();\nconst chatVariables = await chatContex.all();\nconst lang = chatVariables.lang;\nconst endDialogSettings = chatVariables.chatBotSettings.main_settings.end_dialog;\nmsg.payload.type = 'message';\nswitch (reason) {\n    case 'user': {\n        msg.payload.content = endDialogSettings.resolve_inactive_client ? endDialogSettings.language[lang].resolve_message_inactive_client : '';\n        break;\n    }\n    case 'agent': {\n        msg.payload.content = endDialogSettings.resolve_inactive_agent ? endDialogSettings.language[lang].resolve_message_inactive_agent : '';\n        break;\n    }\n    case 'button': {\n        msg.payload.content = endDialogSettings.resolve_client ? endDialogSettings.language[lang].resolve_message_client : '';\n        break;\n    }\n    case 'workingTime': {\n        msg.payload.content = '';\n        break;\n    }\n    default: {\n        msg.payload.content = endDialogSettings.resolve_agent ? endDialogSettings.language[lang].resolve_message_agent : '';\n        break;\n    };\n}\nawait chatContex.remove('endDialogSettings');\nif (msg.payload.content === '') return [null, msg];\nreturn [msg, null];",
+        "outputs": 2,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 560,
+        "y": 160,
+        "wires": [
+            [
+                "0f6fa6e8d43ff838"
+            ],
+            [
+                "afe660feb1150e4d"
+            ]
+        ]
+    },
+    {
+        "id": "1b01a37a777e9b5b",
+        "type": "function",
+        "z": "25acad7fe46431ae",
+        "name": "log context",
+        "func": "node.warn(await msg.chat().all());\n// await msg.chat().remove('chatBotSettings');\n// await msg.chat().remove('csatSettings');\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 230,
+        "y": 300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ade8a48635cfa914",
+        "type": "subflow:178821856c2a9f78",
+        "z": "25acad7fe46431ae",
+        "name": "",
+        "x": 280,
+        "y": 200,
+        "wires": [
+            [
+                "5b487d94779cd372"
+            ],
+            [
+                "3037b91029a374bd"
+            ]
+        ]
+    },
+    {
+        "id": "3037b91029a374bd",
+        "type": "function",
+        "z": "25acad7fe46431ae",
+        "name": "Set Default Lang",
+        "func": "const chatContext = msg.chat();\nconst chatVariables = await chatContext.all();\nlet langs = chatVariables.chatBotSettings.language_request.buttons;\nlangs = langs.sort((a, b) => {\n    return a.id > b.id ? -1 : 1;\n})\nconst defaultLang = langs.find((lang) => lang.active);\nawait chatContext.set('lang', defaultLang.lang);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 470,
+        "y": 220,
+        "wires": [
+            [
+                "5b487d94779cd372"
+            ]
+        ]
+    },
+    {
+        "id": "1214ddcc71d40023",
+        "type": "debug",
+        "z": "25acad7fe46431ae",
+        "name": "debug 14",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 540,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "7c31c95e57fd8f66",
+        "type": "subflow",
+        "name": "Message_Factory (Custom)",
+        "info": "",
+        "category": "ChatBotSettings",
+        "in": [
+            {
+                "x": 50,
+                "y": 30,
+                "wires": []
+            }
+        ],
+        "out": [
+            {
+                "x": 160,
+                "y": 30,
+                "wires": [
+                    {
+                        "id": "7c31c95e57fd8f66",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [],
+        "meta": {},
+        "color": "#A6BBCF",
+        "icon": "font-awesome/fa-code"
+    },
+    {
+        "id": "24c0572acff9ae45",
+        "type": "subflow",
+        "name": "Working_Time (Custom)",
+        "info": "",
+        "category": "ChatBotSettings",
+        "in": [
+            {
+                "x": 50,
+                "y": 30,
+                "wires": []
+            }
+        ],
+        "out": [
+            {
+                "x": 200,
+                "y": 30,
+                "wires": [
+                    {
+                        "id": "24c0572acff9ae45",
+                        "port": 0
+                    }
+                ]
+            },
+            {
+                "x": 210,
+                "y": 80,
+                "wires": []
+            }
+        ],
+        "env": [],
+        "meta": {},
+        "color": "#A6BBCF",
+        "outputLabels": [
+            "MATCH",
+            "NO MATCH"
+        ],
+        "icon": "font-awesome/fa-clock-o"
+    },
+    {
+        "id": "64336e09392f9190",
+        "type": "subflow",
+        "name": "Transfer",
+        "info": "",
+        "category": "ChatBotSettings",
+        "in": [
+            {
+                "x": 80,
+                "y": 200,
+                "wires": [
+                    {
+                        "id": "fd734cdde7fe81ee"
+                    }
+                ]
+            }
+        ],
+        "out": [],
+        "env": [],
+        "meta": {},
+        "color": "#A6BBCF",
+        "icon": "node-red-contrib-chatbot/chatWoot.png"
+    },
+    {
+        "id": "3e288ad7d6254207",
+        "type": "chatbot-chatwoot-botagent-transfer",
+        "z": "64336e09392f9190",
+        "name": "Default Team",
+        "transferTarget": "team",
+        "transferTargetId": "",
+        "assignmentAlgorithm": "none",
+        "bot": "50a12b5a8f843fa0",
+        "x": 1290,
+        "y": 140,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "11e4cb3a45846f19",
+        "type": "function",
+        "z": "64336e09392f9190",
+        "name": "Get Close Msg",
+        "func": "let contextchat = msg.chat();\nlet currenttime = Date.now();\nlet outtime = await contextchat.get('chatwoot-botagent_currentConversationClosed_at');\nconst lastAgentId = await contextchat.get('chatwoot-botagent_lastAgentId');\nif (!outtime || !lastAgentId ||lastAgentId === 0) return [msg, null]; //first pin\nconst chatVariables = await msg.chat().all();\nconst lang = chatVariables.lang;\nconst timeout = chatVariables.chatBotSettings.main_settings.transfer_settings.same_agent_timeout * 60000;\nif (currenttime >= outtime + timeout) {\n    await contextchat.remove('chatwoot-botagent_currentConversationClosed_at')\n    return [msg, null]\n};\n// await contextchat.set('chatwoot-botagent_conversationId', msg.payload.chatId);\nreturn [null, msg]; //second pin",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 240,
+        "wires": [
+            [
+                "9f1bdb5860d836c2"
+            ],
+            [
+                "0c0e608d587a61a8"
+            ]
+        ]
+    },
+    {
+        "id": "7a6096a9b1416342",
+        "type": "chatbot-chatwoot-botagent-send",
+        "z": "64336e09392f9190",
+        "name": "Bot Sender",
+        "bot": "50a12b5a8f843fa0",
+        "botProduction": "50a12b5a8f843fa0",
+        "track": false,
+        "passThrough": false,
+        "errorOutput": false,
+        "disableChangeStatus": true,
+        "outputs": 0,
+        "x": 1850,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "6f80d0ab605629af",
+        "type": "chatbot-chatwoot-botagent-transfer",
+        "z": "64336e09392f9190",
+        "name": "Last Agent",
+        "transferTarget": "agent",
+        "transferTargetId": "",
+        "bot": "50a12b5a8f843fa0",
+        "x": 1290,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e1cf2d41cdfe0f58",
+        "type": "function",
+        "z": "64336e09392f9190",
+        "name": "get agents",
+        "func": "const contextchat = msg.chat();\nconst configId = msg.configId;\nconst novatalksUrl = global.get(`${configId}-novatalksUrl`);\nconst novatalksAccountId = global.get(`${configId}-novatalksAccountId`);\nconst token = global.get(`${configId}-novatalksToken`);\n\nconst lastAgentId = await contextchat.get('chatwoot-botagent_lastAgentId');\nmsg.url = novatalksUrl + \"/api/v1/accounts/\" + novatalksAccountId + \"/agents\";\nmsg.headers = { api_access_token: token };\nmsg.method = 'get';\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 670,
+        "y": 120,
+        "wires": [
+            [
+                "75590ac6b0f262ee"
+            ]
+        ]
+    },
+    {
+        "id": "45cd13e216b22867",
+        "type": "function",
+        "z": "64336e09392f9190",
+        "name": "check agent status",
+        "func": "const chatContext = msg.chat();\nconst chatVariables = await chatContext.all();\nconst lastAgentId = chatVariables['chatwoot-botagent_lastAgentId'];\nconst defaultTeamId = chatVariables.chatBotSettings.main_settings.transfer_settings.team;\nnode.warn(`lastAgentId ${lastAgentId}`);\nfor (let agent of msg.payload) {\n    if (agent.id == lastAgentId && agent.availability === \"online\") {\n        msg.payload = {\n            ...msg.previous,\n            transferTargetId: String(lastAgentId),\n        }\n        return [msg, null];\n    }\n};\nmsg.payload = {\n    ...msg.previous,\n    transferTargetId: String(defaultTeamId),\n}\nreturn [null, msg];",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1030,
+        "y": 140,
+        "wires": [
+            [
+                "6f80d0ab605629af",
+                "f69fd81f145f91ef"
+            ],
+            [
+                "3e288ad7d6254207",
+                "f69fd81f145f91ef",
+                "64174faaab8fdcab"
+            ]
+        ]
+    },
+    {
+        "id": "75590ac6b0f262ee",
+        "type": "http request",
+        "z": "64336e09392f9190",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "senderr": false,
+        "x": 850,
+        "y": 140,
+        "wires": [
+            [
+                "45cd13e216b22867"
+            ]
+        ]
+    },
+    {
+        "id": "0c0e608d587a61a8",
+        "type": "chatbot-push-message",
+        "z": "64336e09392f9190",
+        "x": 660,
+        "y": 160,
+        "wires": [
+            [
+                "e1cf2d41cdfe0f58"
+            ]
+        ]
+    },
+    {
+        "id": "fd734cdde7fe81ee",
+        "type": "chatbot-rules",
+        "z": "64336e09392f9190",
+        "name": "Is Working Time Enabled ?",
+        "rules": [
+            {
+                "type": "isVariable",
+                "variable": "chatBotSettings.agent_schedule.enable",
+                "value": "true"
+            },
+            {
+                "type": "catchAll"
+            }
+        ],
+        "outputs": 2,
+        "x": 240,
+        "y": 200,
+        "wires": [
+            [
+                "eba79150882b9de2"
+            ],
+            [
+                "11e4cb3a45846f19"
+            ]
+        ]
+    },
+    {
+        "id": "eba79150882b9de2",
+        "type": "chatbot-rules",
+        "z": "64336e09392f9190",
+        "name": "is custom? ",
+        "rules": [
+            {
+                "type": "isVariable",
+                "variable": "chatBotSettings.agent_schedule.non_working_time.logic_type",
+                "value": "standard"
+            },
+            {
+                "type": "catchAll"
+            }
+        ],
+        "outputs": 2,
+        "x": 470,
+        "y": 200,
+        "wires": [
+            [
+                "7928242b4ccb5863"
+            ],
+            [
+                "ebab5dd6a4835f6b"
+            ]
+        ]
+    },
+    {
+        "id": "7928242b4ccb5863",
+        "type": "subflow:9cca3030a7dc2d60",
+        "z": "64336e09392f9190",
+        "name": "",
+        "x": 200,
+        "y": 240,
+        "wires": [
+            [
+                "11e4cb3a45846f19"
+            ],
+            [
+                "2da050bda9f5d416"
+            ]
+        ]
+    },
+    {
+        "id": "ebab5dd6a4835f6b",
+        "type": "subflow:24c0572acff9ae45",
+        "z": "64336e09392f9190",
+        "name": "",
+        "x": 230,
+        "y": 280,
+        "wires": [
+            [
+                "11e4cb3a45846f19"
+            ],
+            [
+                "2da050bda9f5d416"
+            ]
+        ]
+    },
+    {
+        "id": "6fcf536225a31487",
+        "type": "chatbot-chatwoot-botagent-send",
+        "z": "64336e09392f9190",
+        "name": "Bot Sender",
+        "bot": "50a12b5a8f843fa0",
+        "botProduction": "50a12b5a8f843fa0",
+        "track": false,
+        "passThrough": true,
+        "errorOutput": false,
+        "disableChangeStatus": false,
+        "outputs": 1,
+        "x": 1170,
+        "y": 260,
+        "wires": [
+            [
+                "03c0f28d5e1b6106"
+            ]
+        ]
+    },
+    {
+        "id": "03c0f28d5e1b6106",
+        "type": "change",
+        "z": "64336e09392f9190",
+        "name": "clear message",
+        "rules": [
+            {
+                "t": "delete",
+                "p": "payload.type",
+                "pt": "msg"
+            },
+            {
+                "t": "delete",
+                "p": "payload.content",
+                "pt": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1340,
+        "y": 260,
+        "wires": [
+            [
+                "9f9c3d39e26a7f46"
+            ]
+        ]
+    },
+    {
+        "id": "9f9c3d39e26a7f46",
+        "type": "chatbot-rules",
+        "z": "64336e09392f9190",
+        "name": "action type",
+        "rules": [
+            {
+                "type": "isVariable",
+                "variable": "chatBotSettings.agent_schedule.non_working_time.action",
+                "value": "transfer"
+            },
+            {
+                "type": "isVariable",
+                "variable": "chatBotSettings.agent_schedule.non_working_time.action",
+                "value": "resolve"
+            }
+        ],
+        "outputs": 2,
+        "x": 1510,
+        "y": 260,
+        "wires": [
+            [
+                "b9c1d004453d3614"
+            ],
+            [
+                "3893045b48f56922"
+            ]
+        ],
+        "outputLabels": [
+            "transfer",
+            "resolve"
+        ]
+    },
+    {
+        "id": "e6fce8c044dbe604",
+        "type": "http request",
+        "z": "64336e09392f9190",
+        "name": "",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "senderr": false,
+        "x": 2070,
+        "y": 280,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e2c0c42ecaaba4c2",
+        "type": "function",
+        "z": "64336e09392f9190",
+        "name": "set req toggle_status",
+        "func": "const configId = msg.configId;\nconst novatalksUrl = global.get(`${configId}-novatalksUrl`);\nconst novatalksAccountId = global.get(`${configId}-novatalksAccountId`);\nconst token = global.get(`${configId}-novatalksToken`);\n\nlet convId = msg.payload.chatId;\nmsg.url = novatalksUrl + \"/api/v1/accounts/\"\n    + novatalksAccountId + \"/conversations/\"\n    + convId + \"/toggle_status\";\nmsg.payload = { \"status\": \"resolved\" };\nmsg.headers = { \"api_access_token\": token };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1880,
+        "y": 280,
+        "wires": [
+            [
+                "e6fce8c044dbe604"
+            ]
+        ]
+    },
+    {
+        "id": "3893045b48f56922",
+        "type": "function",
+        "z": "64336e09392f9190",
+        "name": "set reason",
+        "func": "\nlet convId = msg.payload.chatId;\nglobal.set(`closeId:${convId}`, 'workingTime');\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1690,
+        "y": 280,
+        "wires": [
+            [
+                "e2c0c42ecaaba4c2"
+            ]
+        ]
+    },
+    {
+        "id": "e4eaff3fb7ad9055",
+        "type": "function",
+        "z": "64336e09392f9190",
+        "name": "Transfer Message Factory",
+        "func": "const chatContext = msg.chat();\nconst chatVariables = await chatContext.all();\nconst lang = chatVariables.lang;\nconst message = chatVariables.chatBotSettings.main_settings.transfer_settings.language[lang].transfer_message;\nmsg.payload.type = 'message';\nmsg.payload.content = message;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1590,
+        "y": 160,
+        "wires": [
+            [
+                "7a6096a9b1416342"
+            ]
+        ]
+    },
+    {
+        "id": "b9c1d004453d3614",
+        "type": "function",
+        "z": "64336e09392f9190",
+        "name": "set default team",
+        "func": "const chatContext = msg.chat();\nconst chatVariables = await chatContext.all();\nconst defaultTeamId = chatVariables.chatBotSettings.agent_schedule.non_working_time.transfer_team_id;\nmsg.payload.transferTargetId = String(defaultTeamId);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1700,
+        "y": 240,
+        "wires": [
+            [
+                "3e288ad7d6254207",
+                "f69fd81f145f91ef",
+                "48986674ab844ec7"
+            ]
+        ]
+    },
+    {
+        "id": "651c962aa5cd67f1",
+        "type": "function",
+        "z": "64336e09392f9190",
+        "name": "Non working time Message Factory",
+        "func": "const chatContext = await msg.chat().all();\nconst lang = chatContext.lang;\nconst message = chatContext.chatBotSettings.agent_schedule.non_working_time.language[lang].non_working_time_message;\nmsg.payload.type = 'message';\nmsg.payload.content = message;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 940,
+        "y": 260,
+        "wires": [
+            [
+                "6fcf536225a31487"
+            ]
+        ]
+    },
+    {
+        "id": "fc168bdd5fe774a2",
+        "type": "function",
+        "z": "64336e09392f9190",
+        "name": "set default team",
+        "func": "const chatContext = msg.chat();\nconst chatVariables = await chatContext.all();\nconst defaultTeamId = chatVariables.chatBotSettings.main_settings.transfer_settings.team;\nmsg.payload.transferTargetId = String(defaultTeamId);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 880,
+        "y": 200,
+        "wires": [
+            [
+                "3e288ad7d6254207",
+                "f69fd81f145f91ef"
+            ]
+        ]
+    },
+    {
+        "id": "9f1bdb5860d836c2",
+        "type": "switch",
+        "z": "64336e09392f9190",
+        "name": "transferReason",
+        "property": "transferReason",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "menu",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 2,
+        "x": 680,
+        "y": 200,
+        "wires": [
+            [
+                "16f0730ac3766f83",
+                "162fdb5695422f39"
+            ],
+            [
+                "fc168bdd5fe774a2",
+                "64174faaab8fdcab"
+            ]
+        ]
+    },
+    {
+        "id": "16f0730ac3766f83",
+        "type": "function",
+        "z": "64336e09392f9190",
+        "name": "set default team",
+        "func": "const chatContext = msg.chat();\nconst chatVariables = await chatContext.all();\nlet currentMenu = chatVariables.currentMenu || chatVariables.chatBotSettings.menu.buttons;\nconst defaultTeamId = currentMenu.transfer_team_id;\nmsg.payload.transferTargetId = String(defaultTeamId);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1220,
+        "y": 320,
+        "wires": [
+            [
+                "5cb8ac20969c2924",
+                "a2685eac0ddcbc19"
+            ]
+        ]
+    },
+    {
+        "id": "a2685eac0ddcbc19",
+        "type": "function",
+        "z": "64336e09392f9190",
+        "name": "Transfer Message Factory",
+        "func": "const chatContext = msg.chat();\nconst chatVariables = await chatContext.all();\nconst lang = chatVariables.lang;\nlet currentMenu = chatVariables.currentMenu || chatVariables.chatBotSettings.menu.buttons;\nconst message = currentMenu.language[lang].message;\nmsg.payload.type = 'message';\nmsg.payload.content = message;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1430,
+        "y": 360,
+        "wires": [
+            [
+                "7a6096a9b1416342"
+            ]
+        ]
+    },
+    {
+        "id": "5cb8ac20969c2924",
+        "type": "chatbot-chatwoot-botagent-transfer",
+        "z": "64336e09392f9190",
+        "name": "Default Team",
+        "transferTarget": "team",
+        "transferTargetId": "",
+        "assignmentAlgorithm": "none",
+        "bot": "50a12b5a8f843fa0",
+        "x": 1410,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f69fd81f145f91ef",
+        "type": "chatbot-rules",
+        "z": "64336e09392f9190",
+        "name": "Is Transfer Message Enabled ?",
+        "rules": [
+            {
+                "type": "isVariable",
+                "variable": "chatBotSettings.main_settings.transfer_settings.message_enable",
+                "value": "true"
+            },
+            {
+                "type": "catchAll"
+            }
+        ],
+        "outputs": 2,
+        "x": 1150,
+        "y": 200,
+        "wires": [
+            [
+                "ee46889d54b66b21"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "2da050bda9f5d416",
+        "type": "change",
+        "z": "64336e09392f9190",
+        "name": "clear message",
+        "rules": [
+            {
+                "t": "delete",
+                "p": "payload.type",
+                "pt": "msg"
+            },
+            {
+                "t": "delete",
+                "p": "payload.content",
+                "pt": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 700,
+        "y": 260,
+        "wires": [
+            [
+                "651c962aa5cd67f1"
+            ]
+        ]
+    },
+    {
+        "id": "ee46889d54b66b21",
+        "type": "change",
+        "z": "64336e09392f9190",
+        "name": "clear message",
+        "rules": [
+            {
+                "t": "delete",
+                "p": "payload.type",
+                "pt": "msg"
+            },
+            {
+                "t": "delete",
+                "p": "payload.content",
+                "pt": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1380,
+        "y": 180,
+        "wires": [
+            [
+                "e4eaff3fb7ad9055"
+            ]
+        ]
+    },
+    {
+        "id": "7294f3fe53b00f67",
+        "type": "http request",
+        "z": "64336e09392f9190",
+        "name": "",
+        "method": "use",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1050,
+        "y": 380,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "162fdb5695422f39",
+        "type": "function",
+        "z": "64336e09392f9190",
+        "name": "after menu set skill",
+        "func": "const configId = msg.configId;\nconst novatalksUrl = global.get(`${configId}-novatalksUrl`);\nconst novatalksAccountId = global.get(`${configId}-novatalksAccountId`);\nconst token = global.get(`${configId}-novatalksToken`);\nconst conversationId = msg.payload.chatId;\nconst chatContext = msg.chat();\nconst chatVariables = await chatContext.all();\nconst lang = chatVariables.lang;\nconst currentMenu = chatVariables.currentMenu || chatVariables.chatBotSettings.menu.buttons;\nconst { skills = [] } = currentMenu.language[lang];\n\nmsg.url = `${novatalksUrl}/api/v1/accounts/${novatalksAccountId}/integrations/conversations/${conversationId}/add_skills`;\nmsg.method = 'post';\nmsg.payload = { skills };\nmsg.headers = {\n        \"api_access_token\": token\n};\nreturn msg\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 850,
+        "y": 380,
+        "wires": [
+            [
+                "7294f3fe53b00f67"
+            ]
+        ]
+    },
+    {
+        "id": "64174faaab8fdcab",
+        "type": "function",
+        "z": "64336e09392f9190",
+        "name": "main_settings set skill",
+        "func": "const configId = msg.configId;\nconst novatalksUrl = global.get(`${configId}-novatalksUrl`);\nconst novatalksAccountId = global.get(`${configId}-novatalksAccountId`);\nconst token = global.get(`${configId}-novatalksToken`);\nconst conversationId = msg.payload.chatId;\nconst chatContext = msg.chat();\nconst chatVariables = await chatContext.all();\nconst lang = chatVariables.lang;\n\nconst { skills = [] } = chatVariables.chatBotSettings.main_settings.transfer_settings.language[lang];\nmsg.url = `${novatalksUrl}/api/v1/accounts/${novatalksAccountId}/integrations/conversations/${conversationId}/add_skills`;\nmsg.method = 'post';\nmsg.payload = { skills };\nmsg.headers = {\n        \"api_access_token\": token\n};\nreturn msg",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 860,
+        "y": 420,
+        "wires": [
+            [
+                "7294f3fe53b00f67"
+            ]
+        ]
+    },
+    {
+        "id": "48986674ab844ec7",
+        "type": "function",
+        "z": "64336e09392f9190",
+        "name": "agent_schedule set skill",
+        "func": "const configId = msg.configId;\nconst novatalksUrl = global.get(`${configId}-novatalksUrl`);\nconst novatalksAccountId = global.get(`${configId}-novatalksAccountId`);\nconst token = global.get(`${configId}-novatalksToken`);\nconst conversationId = msg.payload.chatId;\nconst chatContext = msg.chat();\nconst chatVariables = await chatContext.all();\nconst lang = chatVariables.lang;\nconst { skills = [] } = chatVariables.chatBotSettings.agent_schedule.non_working_time.language[lang];\nmsg.url = `${novatalksUrl}/api/v1/accounts/${novatalksAccountId}/integrations/conversations/${conversationId}/add_skills`;\nmsg.method = 'post';\nmsg.payload = { skills };\nmsg.headers = {\n        \"api_access_token\": token\n};\nreturn msg",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 870,
+        "y": 340,
+        "wires": [
+            [
+                "7294f3fe53b00f67"
+            ]
+        ]
+    },
+    {
+        "id": "9cca3030a7dc2d60",
+        "type": "subflow",
+        "name": "Working_Time",
+        "info": "",
+        "category": "ChatBotSettings",
+        "in": [
+            {
+                "x": 180,
+                "y": 420,
+                "wires": [
+                    {
+                        "id": "a63907e6697e842b"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 490,
+                "y": 460,
+                "wires": [
+                    {
+                        "id": "a63907e6697e842b",
+                        "port": 1
+                    },
+                    {
+                        "id": "a63907e6697e842b",
+                        "port": 2
+                    }
+                ]
+            },
+            {
+                "x": 500,
+                "y": 400,
+                "wires": [
+                    {
+                        "id": "a63907e6697e842b",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [],
+        "meta": {},
+        "color": "#A6BBCF",
+        "inputLabels": [
+            "in message"
+        ],
+        "outputLabels": [
+            "match",
+            "no match"
+        ],
+        "icon": "font-awesome/fa-clock-o"
+    },
+    {
+        "id": "a63907e6697e842b",
+        "type": "chatbot-rules",
+        "z": "9cca3030a7dc2d60",
+        "name": "",
+        "rules": [
+            {
+                "type": "isVariable",
+                "variable": "workingHoursValidate",
+                "value": "false"
+            },
+            {
+                "type": "isVariable",
+                "variable": "workingHoursValidate",
+                "value": "true"
+            },
+            {
+                "type": "catchAll"
+            }
+        ],
+        "outputs": 3,
+        "x": 310,
+        "y": 420,
+        "wires": [
+            [],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "548dd1d724057306",
+        "type": "subflow",
+        "name": "Message_Step (Custom)",
+        "info": "",
+        "category": "ChatBotSettings",
+        "in": [
+            {
+                "x": 220,
+                "y": 300,
+                "wires": []
+            }
+        ],
+        "out": [
+            {
+                "x": 420,
+                "y": 320,
+                "wires": [
+                    {
+                        "id": "548dd1d724057306",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [],
+        "meta": {},
+        "color": "#A6BBCF",
+        "icon": "font-awesome/fa-code"
+    },
+    {
+        "id": "700f177d5ce9cfc4",
+        "type": "subflow",
+        "name": "Message_Factory",
+        "info": "",
+        "category": "ChatBotSettings",
+        "in": [
+            {
+                "x": 40,
+                "y": 260,
+                "wires": [
+                    {
+                        "id": "fa1913e4fef7bfda"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 1500,
+                "y": 200,
+                "wires": [
+                    {
+                        "id": "b612309ec4f599b9",
+                        "port": 0
+                    }
+                ]
+            },
+            {
+                "x": 920,
+                "y": 160,
+                "wires": [
+                    {
+                        "id": "725f96affb727302",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [],
+        "meta": {},
+        "color": "#A6BBCF",
+        "inputLabels": [
+            "IN"
+        ],
+        "outputLabels": [
+            "END DIALOG",
+            "RESOLVE INACTIVE"
+        ],
+        "icon": "font-awesome/fa-code"
+    },
+    {
+        "id": "cc91b3218f5c28c1",
+        "type": "function",
+        "z": "700f177d5ce9cfc4",
+        "name": "Message Factory",
+        "func": "const transport = msg.originalMessage.conversation.additional_attributes.contactSource;\nconst chatContext = msg.chat();\nconst chatVariables = await chatContext.all();\nconst lang = chatVariables.lang;\nconst menu = chatVariables.chatBotSettings.menu;\nlet currentMenu = chatVariables.currentMenu || menu.buttons;\nconst endlabel = lang === 'ua' ? 'Завершити діалог' : lang === 'en' ? 'End dialog' : 'Завершить диалог';\nconst endKeyboard = {\n    type: \"keyboardButton\",\n    label: endlabel,\n    value: '00',\n    bgColor: '#99ccff'\n};\nconst endQuick = {\n    type: \"quick-reply\",\n    label: endlabel,\n    value: '00',\n};\nconst endString = `00 - ${endlabel}\\n`;\n\nconst mainMenulabel = lang === 'ua' ? 'Головне меню' : lang === 'en' ? 'Main menu' : 'Главное меню';\nconst mainMenuKeyboard = {\n    type: \"keyboardButton\",\n    label: mainMenulabel,\n    value: '01',\n    bgColor: '#99ccff'\n};\nconst mainMenuQuick = {\n    type: \"quick-reply\",\n    label: mainMenulabel,\n    value: '01',\n};\nconst mainMenuString = `01 - ${mainMenulabel}\\n`;\n\nconst backlabel = lang === 'ua' ? 'Назад' : lang === 'en' ? 'Back' : 'Назад';\nconst backKeyboard = {\n    type: \"keyboardButton\",\n    label: backlabel,\n    value: '02',\n    bgColor: '#99ccff'\n};\nconst backQuick = {\n    type: \"quick-reply\",\n    label: backlabel,\n    value: '02',\n};\nconst backString = `02 - ${backlabel}\\n`;\n\nmsg.payload.content = currentMenu.language[lang].message;\nswitch (transport) {\n    case 'telegram':\n    case 'viber': {\n        if (!currentMenu.childrens) { break; }\n        msg.payload.type = 'buttons';\n        msg.payload.buttons = [];\n        const tmpButtons = currentMenu.childrens.map((btn) => {\n            return {\n                type: \"keyboardButton\",\n                label: btn.language[lang].button_label,\n                value: btn.button_code || btn.language[lang].button_label,\n                bgColor: '#99ccff'\n            }\n        });\n        const buttonsLength = tmpButtons.length;\n        for (let i = 0; i < buttonsLength; i++) {\n            if (i % 2 === 0 && i !== 0) {\n                msg.payload.buttons.push({ type: 'newline' });\n                msg.payload.buttons.push(tmpButtons.shift());\n            } else {\n                msg.payload.buttons.push(tmpButtons.shift());\n            }\n        }\n\n        if (menu.end_dialog_button) {\n            msg.payload.buttons.push({ type: 'newline' });\n            msg.payload.buttons.push(endKeyboard);\n        }\n        if (menu.main_menu_button && currentMenu.action) {\n            msg.payload.buttons.push({ type: 'newline' });\n            msg.payload.buttons.push(mainMenuKeyboard);\n        }\n        if (menu.back_button && currentMenu.action) {\n            msg.payload.buttons.push({ type: 'newline' });\n            msg.payload.buttons.push(backKeyboard);\n        }\n        break;\n    }\n    case 'chat':\n    case 'instagram':\n    case 'messenger': {\n        if (!currentMenu.childrens) { break; }\n        msg.payload.type = 'quick-replies';\n        msg.payload.buttons = currentMenu.childrens.map((btn) => {\n            return {\n                type: \"quick-reply\",\n                label: btn.language[lang].button_label,\n                value: btn.button_code || btn.language[lang].button_label,\n            }\n        });\n        if (menu.end_dialog_button) {\n            msg.payload.buttons.push(endQuick);\n        }\n        if (menu.main_menu_button && currentMenu.action) {\n            msg.payload.buttons.push(mainMenuQuick);\n        }\n        if (menu.back_button && currentMenu.action) {\n            msg.payload.buttons.push(backQuick);\n        }\n        break;\n    }\n    default: {\n        if (!currentMenu.childrens) { break; }\n        msg.payload.type = 'message';\n        let buttonsString = '\\n';\n        for (let btn of currentMenu.childrens) {\n            buttonsString += `${btn.button_code || btn.language[lang].button_label} - ${btn.language[lang].button_label}\\n`;\n        }\n        msg.payload.content += buttonsString;\n        if (menu.end_dialog_button) {\n            msg.payload.content += endString;\n        }\n        if (menu.main_menu_button && currentMenu.action) {\n            msg.payload.content += mainMenuString;\n        }\n        if (menu.back_button && currentMenu.action) {\n            msg.payload.content += backString;\n        }\n        break;\n\n    }\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 710,
+        "y": 200,
+        "wires": [
+            [
+                "725f96affb727302"
+            ]
+        ]
+    },
+    {
+        "id": "725f96affb727302",
+        "type": "chatbot-chatwoot-botagent-send",
+        "z": "700f177d5ce9cfc4",
+        "name": "Bot sender",
+        "bot": "50a12b5a8f843fa0",
+        "botProduction": "50a12b5a8f843fa0",
+        "track": true,
+        "passThrough": false,
+        "errorOutput": false,
+        "disableChangeStatus": false,
+        "outputs": 1,
+        "x": 890,
+        "y": 200,
+        "wires": [
+            [
+                "76c3e363b8956cec"
+            ]
+        ]
+    },
+    {
+        "id": "76c3e363b8956cec",
+        "type": "function",
+        "z": "700f177d5ce9cfc4",
+        "name": "Answer Switch",
+        "func": "const chatContext = msg.chat();\nconst chatVariables = await chatContext.all();\nconst lang = chatVariables.lang;\nconst menu = chatVariables.chatBotSettings.menu;\nconst currentMenu = chatVariables.currentMenu || menu.buttons;\nlet newMenu;\nconst userResponse = msg.payload.content;\n\nlet availableLabels = currentMenu.childrens.map((btn) => btn.language[lang].button_label);\nlet availableCodes = currentMenu.childrens.map((btn) => String(btn.button_code));\n\nconst endlabel = lang === 'ua' ? 'Завершити діалог' : lang === 'en' ? 'End dialog' : 'Завершить диалог';\nconst mainMenulabel = lang === 'ua' ? 'Головне меню' : lang === 'en' ? 'Main menu' : 'Главное меню';\nconst backlabel = lang === 'ua' ? 'Назад' : lang === 'en' ? 'Back' : 'Назад';\n\nconst availableLabelsFirstStep = availableLabels.concat([endlabel]);\nconst availableLabelsNStep = availableLabels.concat([endlabel, mainMenulabel, backlabel]);\n\nconst availableCodesFirstStep = availableCodes.concat(['00']);\nconst availableCodesNStep = availableCodes.concat(['00', '01', '02']);\n\nif (!currentMenu.action) {\n    if (availableLabelsFirstStep.includes(userResponse) || availableCodesFirstStep.includes(userResponse)) {\n        if (userResponse === endlabel || userResponse === '00') {\n            return [null, msg, null, null, null];\n        } else {\n            newMenu = currentMenu.childrens.find((btn) => {\n                return [String(btn.button_code), btn.language[lang].button_label].includes(userResponse);\n            })\n            await chatContext.set('currentMenu', newMenu);\n            await chatContext.set('previousMenu', currentMenu);\n            return [msg, null, null, null, null];\n        }\n    } else {\n        return [null, null, null, null, msg];\n    }\n} else {\n    if (availableLabelsNStep.includes(userResponse) || availableCodesNStep.includes(userResponse)) {\n        if (userResponse === endlabel || userResponse === '00') {\n            return [null, msg, null, null, null];\n        } else if (userResponse === mainMenulabel || userResponse === '01') {\n            newMenu = menu.buttons;\n            await chatContext.set('currentMenu', newMenu);\n            await chatContext.set('previousMenu', currentMenu);\n            return [null, null, msg, null, null];\n        } else if (userResponse === backlabel || userResponse === '02') {\n            newMenu = chatVariables.previousMenu;\n            await chatContext.set('currentMenu', newMenu);\n            await chatContext.set('previousMenu', currentMenu);\n            return [null, null, null, msg, null];\n        } else {\n            newMenu = currentMenu.childrens.find((btn) => {\n                return [String(btn.button_code), btn.language[lang].button_label].includes(userResponse);\n            })\n            await chatContext.set('currentMenu', newMenu);\n            await chatContext.set('previousMenu', currentMenu);\n            return [msg, null, null, null, null];\n        }\n    } else {\n        return [null, null, null, null, msg];\n    }\n}\nreturn msg;",
+        "outputs": 5,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1080,
+        "y": 220,
+        "wires": [
+            [
+                "703a41c297c6e7e1"
+            ],
+            [
+                "263fbe61aba3362b"
+            ],
+            [
+                "703a41c297c6e7e1"
+            ],
+            [
+                "703a41c297c6e7e1"
+            ],
+            [
+                "703a41c297c6e7e1"
+            ]
+        ],
+        "outputLabels": [
+            "Menu",
+            "End Dialog",
+            "Main menu",
+            "Back",
+            "Else"
+        ]
+    },
+    {
+        "id": "703a41c297c6e7e1",
+        "type": "link out",
+        "z": "700f177d5ce9cfc4",
+        "name": "",
+        "mode": "link",
+        "links": [
+            "0dd9737a6070cbf6",
+            "b380f6a1d9a43c70",
+            "cbf6bb2aa5d8133c"
+        ],
+        "x": 1205,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "b612309ec4f599b9",
+        "type": "http request",
+        "z": "700f177d5ce9cfc4",
+        "name": "",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1510,
+        "y": 240,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "06605b7786fc2706",
+        "type": "function",
+        "z": "700f177d5ce9cfc4",
+        "name": "set req toggle_status",
+        "func": "const configId = msg.configId;\nconst novatalksUrl = global.get(`${configId}-novatalksUrl`);\nconst novatalksAccountId = global.get(`${configId}-novatalksAccountId`);\nconst token = global.get(`${configId}-novatalksToken`);\n\nlet convId = msg.payload.chatId;\nmsg.url = novatalksUrl + \"/api/v1/accounts/\"\n    + novatalksAccountId + \"/conversations/\"\n    + convId + \"/toggle_status\";\nmsg.payload = { \"status\": \"resolved\" };\nmsg.headers = { \"api_access_token\": token };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1320,
+        "y": 240,
+        "wires": [
+            [
+                "b612309ec4f599b9"
+            ]
+        ]
+    },
+    {
+        "id": "263fbe61aba3362b",
+        "type": "function",
+        "z": "700f177d5ce9cfc4",
+        "name": "set reason",
+        "func": "\nlet convId = msg.payload.chatId;\nglobal.set(`closeId:${convId}`, 'button');\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1290,
+        "y": 200,
+        "wires": [
+            [
+                "06605b7786fc2706"
+            ]
+        ]
+    },
+    {
+        "id": "32d781d701982c2a",
+        "type": "subflow:548dd1d724057306",
+        "z": "700f177d5ce9cfc4",
+        "name": "",
+        "x": 730,
+        "y": 280,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "fa1913e4fef7bfda",
+        "type": "chatbot-rules",
+        "z": "700f177d5ce9cfc4",
+        "name": "Disable menu at non-working time?",
+        "rules": [
+            {
+                "type": "isVariable",
+                "variable": "chatBotSettings.menu.disable_non_working_time",
+                "value": "true"
+            },
+            {
+                "type": "catchAll"
+            }
+        ],
+        "outputs": 2,
+        "x": 220,
+        "y": 260,
+        "wires": [
+            [
+                "e4e372b9597000ed"
+            ],
+            [
+                "e0983d6fbcf964a5"
+            ]
+        ]
+    },
+    {
+        "id": "63f1ef7f1077c302",
+        "type": "subflow:9cca3030a7dc2d60",
+        "z": "700f177d5ce9cfc4",
+        "name": "",
+        "x": 240,
+        "y": 380,
+        "wires": [
+            [
+                "e0983d6fbcf964a5"
+            ],
+            [
+                "0f340fee4ca5c7f8"
+            ]
+        ]
+    },
+    {
+        "id": "e0983d6fbcf964a5",
+        "type": "function",
+        "z": "700f177d5ce9cfc4",
+        "name": "type of logic",
+        "func": "const chatContext = msg.chat();\nconst chatVariables = await chatContext.all();\nconst lang = chatVariables.lang;\nconst buttons = chatVariables.chatBotSettings.menu.buttons;\nlet currentMenu = chatVariables.currentMenu || buttons;\nswitch (currentMenu.action) {\n    case 'transfer': {\n        return [null, msg, null];\n    };\n    case 'custom': {\n        return [null, null, msg];\n    };\n    default: {\n        return [msg, null, null];\n    }\n}",
+        "outputs": 3,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 240,
+        "wires": [
+            [
+                "cc91b3218f5c28c1"
+            ],
+            [
+                "fc0c6a94c8228eda"
+            ],
+            [
+                "32d781d701982c2a"
+            ]
+        ],
+        "outputLabels": [
+            "submenu",
+            "transfer",
+            "custom"
+        ]
+    },
+    {
+        "id": "cbf6bb2aa5d8133c",
+        "type": "link in",
+        "z": "700f177d5ce9cfc4",
+        "name": "",
+        "links": [
+            "703a41c297c6e7e1"
+        ],
+        "x": 395,
+        "y": 200,
+        "wires": [
+            [
+                "e0983d6fbcf964a5"
+            ]
+        ]
+    },
+    {
+        "id": "af2875ba92e2b1e2",
+        "type": "subflow:64336e09392f9190",
+        "z": "700f177d5ce9cfc4",
+        "name": "",
+        "x": 860,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "0f340fee4ca5c7f8",
+        "type": "subflow:64336e09392f9190",
+        "z": "700f177d5ce9cfc4",
+        "name": "",
+        "x": 520,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "10bdbfb0f90fe823",
+        "type": "function",
+        "z": "700f177d5ce9cfc4",
+        "name": "",
+        "func": "node.warn(await msg.chat().all())\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 920,
+        "y": 60,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ec0454af204f087d",
+        "type": "function",
+        "z": "700f177d5ce9cfc4",
+        "name": "",
+        "func": "node.warn(await msg.chat().all());\n// await msg.chat().remove('chatBotSettings');\n// await msg.chat().remove('csatSettings');\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1080,
+        "y": 60,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e4e372b9597000ed",
+        "type": "chatbot-rules",
+        "z": "700f177d5ce9cfc4",
+        "name": "Is Working Time Enabled ?",
+        "rules": [
+            {
+                "type": "isVariable",
+                "variable": "chatBotSettings.agent_schedule.enable",
+                "value": "true"
+            },
+            {
+                "type": "catchAll"
+            }
+        ],
+        "outputs": 2,
+        "x": 220,
+        "y": 300,
+        "wires": [
+            [
+                "281ec4515f87d95d"
+            ],
+            [
+                "e0983d6fbcf964a5"
+            ]
+        ]
+    },
+    {
+        "id": "281ec4515f87d95d",
+        "type": "chatbot-rules",
+        "z": "700f177d5ce9cfc4",
+        "name": "is custom? ",
+        "rules": [
+            {
+                "type": "isVariable",
+                "variable": "chatBotSettings.agent_schedule.non_working_time.logic_type",
+                "value": "standard"
+            },
+            {
+                "type": "catchAll"
+            }
+        ],
+        "outputs": 2,
+        "x": 450,
+        "y": 320,
+        "wires": [
+            [
+                "63f1ef7f1077c302"
+            ],
+            [
+                "2df3c6f710bb0516"
+            ]
+        ]
+    },
+    {
+        "id": "2df3c6f710bb0516",
+        "type": "subflow:24c0572acff9ae45",
+        "z": "700f177d5ce9cfc4",
+        "name": "",
+        "x": 250,
+        "y": 420,
+        "wires": [
+            [
+                "e0983d6fbcf964a5"
+            ],
+            [
+                "0f340fee4ca5c7f8"
+            ]
+        ]
+    },
+    {
+        "id": "fc0c6a94c8228eda",
+        "type": "change",
+        "z": "700f177d5ce9cfc4",
+        "name": "transferReason",
+        "rules": [
+            {
+                "t": "set",
+                "p": "transferReason",
+                "pt": "msg",
+                "to": "menu",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 700,
+        "y": 240,
+        "wires": [
+            [
+                "af2875ba92e2b1e2"
+            ]
+        ]
+    },
+    {
+        "id": "79c395dfd390cbf9",
+        "type": "subflow",
+        "name": "Start_Dialog (Custom)",
+        "info": "",
+        "category": "ChatBotSettings",
+        "in": [
+            {
+                "x": 360,
+                "y": 300,
+                "wires": [
+                    {
+                        "id": "eb335cd082461b34"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 900,
+                "y": 300,
+                "wires": [
+                    {
+                        "id": "0fde9c660bbd92fc",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [],
+        "meta": {},
+        "color": "#A6BBCF",
+        "icon": "font-awesome/fa-code"
+    },
+    {
+        "id": "eb335cd082461b34",
+        "type": "function",
+        "z": "79c395dfd390cbf9",
+        "name": "",
+        "func": "\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 520,
+        "y": 300,
+        "wires": [
+            [
+                "0fde9c660bbd92fc"
+            ]
+        ]
+    },
+    {
+        "id": "0fde9c660bbd92fc",
+        "type": "function",
+        "z": "79c395dfd390cbf9",
+        "name": "",
+        "func": "\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "943349a22327be26",
+        "type": "subflow",
+        "name": "Start_Dialog",
+        "info": "",
+        "category": "ChatBotSettings",
+        "in": [
+            {
+                "x": 80,
+                "y": 180,
+                "wires": [
+                    {
+                        "id": "951c945b2dcebc67"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 980,
+                "y": 180,
+                "wires": [
+                    {
+                        "id": "9e83b2788245069d",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [],
+        "meta": {},
+        "color": "#A6BBCF",
+        "icon": "font-awesome/fa-code"
+    },
+    {
+        "id": "7990e889cfe3d453",
+        "type": "function",
+        "z": "943349a22327be26",
+        "name": "Start Message Factory",
+        "func": "const chatContext = msg.chat();\nconst chatVariables = await chatContext.all();\nconst lang = chatVariables.lang;\nconst welcomeMessage = chatVariables.chatBotSettings.main_settings.start_dialog.language[lang].welcome_message;\nmsg.payload.type = 'message';\nmsg.payload.content = welcomeMessage;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 400,
+        "y": 180,
+        "wires": [
+            [
+                "1375086d300c65b9"
+            ]
+        ]
+    },
+    {
+        "id": "1375086d300c65b9",
+        "type": "chatbot-chatwoot-botagent-send",
+        "z": "943349a22327be26",
+        "name": "",
+        "bot": "50a12b5a8f843fa0",
+        "botProduction": "50a12b5a8f843fa0",
+        "track": false,
+        "passThrough": true,
+        "errorOutput": false,
+        "disableChangeStatus": false,
+        "outputs": 1,
+        "x": 640,
+        "y": 180,
+        "wires": [
+            [
+                "9e83b2788245069d"
+            ]
+        ]
+    },
+    {
+        "id": "9e83b2788245069d",
+        "type": "change",
+        "z": "943349a22327be26",
+        "name": "clear message",
+        "rules": [
+            {
+                "t": "delete",
+                "p": "payload.type",
+                "pt": "msg"
+            },
+            {
+                "t": "delete",
+                "p": "payload.content",
+                "pt": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 860,
+        "y": 180,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "951c945b2dcebc67",
+        "type": "change",
+        "z": "943349a22327be26",
+        "name": "clear message",
+        "rules": [
+            {
+                "t": "delete",
+                "p": "payload.type",
+                "pt": "msg"
+            },
+            {
+                "t": "delete",
+                "p": "payload.content",
+                "pt": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 200,
+        "y": 180,
+        "wires": [
+            [
+                "7990e889cfe3d453"
+            ]
+        ]
+    },
+    {
+        "id": "178821856c2a9f78",
+        "type": "subflow",
+        "name": "Is lang defined ?",
+        "info": "",
+        "category": "ChatBotSettings",
+        "in": [
+            {
+                "x": 40,
+                "y": 280,
+                "wires": [
+                    {
+                        "id": "f2e346f5074a9c16"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 1040,
+                "y": 240,
+                "wires": [
+                    {
+                        "id": "b37dee334a7ac53c",
+                        "port": 0
+                    }
+                ]
+            },
+            {
+                "x": 1050,
+                "y": 320,
+                "wires": [
+                    {
+                        "id": "704a55e0ca77630b",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [],
+        "meta": {},
+        "color": "#A6BBCF",
+        "inputLabels": [
+            "in"
+        ],
+        "outputLabels": [
+            "defined",
+            "not defined"
+        ],
+        "icon": "font-awesome/fa-code"
+    },
+    {
+        "id": "1483963dbb842507",
+        "type": "function",
+        "z": "178821856c2a9f78",
+        "name": "set lang attr req",
+        "func": "const configId = msg.configId;\nconst novatalksUrl = global.get(`${configId}-novatalksUrl`);\nconst novatalksAccountId = global.get(`${configId}-novatalksAccountId`);\nconst token = global.get(`${configId}-novatalksToken`);\nconst contactId = msg.originalMessage.sender?.id || msg.originalMessage.meta.sender.id;\nmsg.url = `${novatalksUrl}/api/v1/accounts/${novatalksAccountId}/contacts/${contactId}`;\nmsg.headers = {\n    api_access_token: token\n}\nmsg.method = 'get';\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 280,
+        "wires": [
+            [
+                "445cc4c316688288"
+            ]
+        ]
+    },
+    {
+        "id": "445cc4c316688288",
+        "type": "http request",
+        "z": "178821856c2a9f78",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "senderr": false,
+        "x": 510,
+        "y": 280,
+        "wires": [
+            [
+                "b31a34ada9419473"
+            ]
+        ]
+    },
+    {
+        "id": "f2e346f5074a9c16",
+        "type": "chatbot-push-message",
+        "z": "178821856c2a9f78",
+        "x": 160,
+        "y": 280,
+        "wires": [
+            [
+                "1483963dbb842507",
+                "2e2158c50db66435"
+            ]
+        ]
+    },
+    {
+        "id": "b37dee334a7ac53c",
+        "type": "chatbot-pop-message",
+        "z": "178821856c2a9f78",
+        "x": 880,
+        "y": 260,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "704a55e0ca77630b",
+        "type": "chatbot-pop-message",
+        "z": "178821856c2a9f78",
+        "x": 880,
+        "y": 300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b31a34ada9419473",
+        "type": "function",
+        "z": "178821856c2a9f78",
+        "name": "set to chatContext",
+        "func": "const chatContext = msg.chat();\nconst chatVariables = await msg.chat().all();\nconst activeLang = chatVariables.chatBotSettings.language_request.buttons.filter((btn) => btn.active).map((btn) => btn.lang);\nif (activeLang.includes(msg.payload.custom_attributes.language)){\n    await chatContext.set(\"lang\", msg.payload.custom_attributes.language);\n    return [msg, null]\n}\nreturn [null, msg];",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 690,
+        "y": 280,
+        "wires": [
+            [
+                "b37dee334a7ac53c"
+            ],
+            [
+                "704a55e0ca77630b"
+            ]
+        ]
+    },
+    {
+        "id": "2e2158c50db66435",
+        "type": "debug",
+        "z": "178821856c2a9f78",
+        "name": "debug 15",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 340,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "841f6eb384454dad",
+        "type": "subflow",
+        "name": "Lang",
+        "info": "",
+        "category": "ChatBotSettings",
+        "in": [
+            {
+                "x": 120,
+                "y": 320,
+                "wires": [
+                    {
+                        "id": "82341c429669eb5a"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 900,
+                "y": 320,
+                "wires": [
+                    {
+                        "id": "59a3cf9011a59419",
+                        "port": 0
+                    },
+                    {
+                        "id": "72db6a95910a4933",
+                        "port": 1
+                    }
+                ]
+            },
+            {
+                "x": 480,
+                "y": 280,
+                "wires": [
+                    {
+                        "id": "1a67be566193371c",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [],
+        "meta": {},
+        "color": "#A6BBCF",
+        "outputLabels": [
+            "",
+            "RESOLVE INACTIVE"
+        ],
+        "icon": "font-awesome/fa-code"
+    },
+    {
+        "id": "82341c429669eb5a",
+        "type": "function",
+        "z": "841f6eb384454dad",
+        "name": "Lang Message Factory",
+        "func": "const transport = msg.originalMessage.conversation.additional_attributes.contactSource;\nconst chatContext = msg.chat();\nconst chatVariables = await chatContext.all();\nconst langMessage = chatVariables.chatBotSettings.language_request.message;\nlet langButtons = chatVariables.chatBotSettings.language_request.buttons;\nlangButtons = langButtons.filter(function (element) {\n    return element.active;\n});\nmsg.payload.content = langMessage;\n\nconst isMissingButtonCode = langButtons.some(button => button.button_code === undefined);\n\nif (isMissingButtonCode) {\n    node.error(\"Error: At least one element is missing the 'button_code'.\", msg);\n}\nswitch (transport) {\n    case 'telegram':\n    case 'viber': {\n        msg.payload.type = 'buttons';\n        msg.payload.buttons = langButtons.map((btn) => {\n            return {\n                type: \"keyboardButton\",\n                label: btn.button_label,\n                value: btn.button_code || btn.button_label,\n                bgColor: '#99ccff'\n            };\n        });\n        break;\n    }\n    case 'chat':\n    case 'instagram':\n    case 'messenger': {\n        msg.payload.type = 'quick-replies';\n        msg.payload.buttons = langButtons.map((btn) => {\n            return {\n                type: \"quick-reply\",\n                label: btn.button_label,\n                value: btn.button_code || btn.button_label,\n            }\n        });\n        break;\n    }\n    default: {\n        msg.payload.type = 'message';\n        let buttonsString = '\\n';\n        for (let btn of langButtons) {\n            buttonsString += `${btn.button_code || btn.button_label} - ${btn.button_label}\\n`;\n        }\n        msg.payload.content += buttonsString;\n        break;\n    }\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 260,
+        "y": 320,
+        "wires": [
+            [
+                "1a67be566193371c"
+            ]
+        ]
+    },
+    {
+        "id": "1a67be566193371c",
+        "type": "chatbot-chatwoot-botagent-send",
+        "z": "841f6eb384454dad",
+        "name": "",
+        "bot": "50a12b5a8f843fa0",
+        "botProduction": "50a12b5a8f843fa0",
+        "track": true,
+        "passThrough": false,
+        "errorOutput": false,
+        "disableChangeStatus": false,
+        "outputs": 1,
+        "x": 500,
+        "y": 320,
+        "wires": [
+            [
+                "72db6a95910a4933"
+            ]
+        ]
+    },
+    {
+        "id": "41edc9158cd2ade9",
+        "type": "change",
+        "z": "841f6eb384454dad",
+        "name": "clear message",
+        "rules": [
+            {
+                "t": "delete",
+                "p": "payload.type",
+                "pt": "msg"
+            },
+            {
+                "t": "delete",
+                "p": "payload.content",
+                "pt": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 500,
+        "y": 160,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "72db6a95910a4933",
+        "type": "function",
+        "z": "841f6eb384454dad",
+        "name": "Check Lang",
+        "func": "if (msg.payload.type !== 'message') {\n    return [null, msg];\n}\nconst userMessage = msg.payload.content;\nconst chatContext = msg.chat();\nconst contextVariables = await chatContext.all();\nconst langButtons = contextVariables.chatBotSettings.language_request.buttons\nconst availableValues = langButtons.map((btn) => {\n    return btn.active ? btn.button_label : undefined;\n});\nconst availableCodes = langButtons.map((btn) => {\n    return btn.active ? String(btn.button_code) : undefined;\n});\nif (availableValues.includes(userMessage) || availableCodes.includes(userMessage)) {\n    msg.payload.content = langButtons.find((btn) => {\n        return userMessage === btn.button_label || userMessage == btn.button_code;\n    }).lang;\n    return [msg, null];\n}\nreturn [null, msg];",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 730,
+        "y": 320,
+        "wires": [
+            [
+                "0f960b887ae93694",
+                "59a3cf9011a59419",
+                "dc8774dcd7855398"
+            ],
+            []
+        ],
+        "outputLabels": [
+            "match",
+            "no match"
+        ],
+        "icon": "font-awesome/fa-code"
+    },
+    {
+        "id": "0f960b887ae93694",
+        "type": "function",
+        "z": "841f6eb384454dad",
+        "name": "set lang attr req",
+        "func": "const configId = msg.configId;\nconst novatalksUrl = global.get(`${configId}-novatalksUrl`);\nconst novatalksAccountId = global.get(`${configId}-novatalksAccountId`);\nconst token = global.get(`${configId}-novatalksToken`);\nconst contactId = msg.originalMessage.sender.id;\nconst pickedLang = msg.payload.content;\nconst chatContext = msg.chat();\nmsg.url = `${novatalksUrl}/api/v1/accounts/${novatalksAccountId}/contacts/${contactId}/attributes`;\nmsg.headers = {\n    api_access_token: token\n}\nmsg.payload = {\n    \"custom_attributes\": {\n        \"language\": pickedLang\n    },\n}\nmsg.method = 'post';\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 900,
+        "y": 220,
+        "wires": [
+            [
+                "93e0a083a9d882d7"
+            ]
+        ]
+    },
+    {
+        "id": "93e0a083a9d882d7",
+        "type": "http request",
+        "z": "841f6eb384454dad",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "senderr": false,
+        "x": 1090,
+        "y": 220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "59a3cf9011a59419",
+        "type": "function",
+        "z": "841f6eb384454dad",
+        "name": "set to chatContext",
+        "func": "const chatContext = msg.chat();\nawait chatContext.set(\"lang\", msg.payload.content);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 910,
+        "y": 260,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "dc8774dcd7855398",
+        "type": "debug",
+        "z": "841f6eb384454dad",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 890,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "bb11a9f023699cbe",
+        "type": "tab",
+        "label": "BotAgent_Sys_ChatBot",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "8dac35c6375f063b",
+        "type": "group",
+        "z": "bb11a9f023699cbe",
+        "name": "Reset agent\\team on close",
+        "style": {
+            "stroke": "#ffC000",
+            "label": true,
+            "label-position": "n",
+            "color": "#0070c0"
+        },
+        "nodes": [
+            "fdcdcc2cad157efc",
+            "2b4182c008d56ed2",
+            "6dab09be487494d2",
+            "baa0c2fece8d4ef8"
+        ],
+        "x": 784,
+        "y": 619,
+        "w": 522,
+        "h": 122
+    },
+    {
+        "id": "c31a16bd9505c89b",
+        "type": "chatbot-chatwoot-botagent-receive",
+        "z": "bb11a9f023699cbe",
+        "name": "BotAgent Incoming",
+        "bot": "50a12b5a8f843fa0",
+        "botProduction": "50a12b5a8f843fa0",
+        "x": 90,
+        "y": 580,
+        "wires": [
+            [
+                "b36a0b967b088de7",
+                "c80ac148637ec809",
+                "2326a5f8ccbaa08c",
+                "f52a700ace64051c"
+            ],
+            [
+                "2326a5f8ccbaa08c",
+                "fbb96c6fdd9783a6",
+                "f52a700ace64051c"
+            ],
+            [
+                "7432bcaaf8a972cc",
+                "2326a5f8ccbaa08c",
+                "2edb4df3aba1c525"
+            ]
+        ]
+    },
+    {
+        "id": "9da50570c3ea9884",
+        "type": "subflow:841f6eb384454dad",
+        "z": "bb11a9f023699cbe",
+        "name": "",
+        "x": 1690,
+        "y": 200,
+        "wires": [
+            [
+                "239a4ae980da6fc8"
+            ],
+            [
+                "4745ccdcd7fff262"
+            ]
+        ]
+    },
+    {
+        "id": "22d320306769f0be",
+        "type": "subflow:178821856c2a9f78",
+        "z": "bb11a9f023699cbe",
+        "name": "",
+        "x": 880,
+        "y": 280,
+        "wires": [
+            [
+                "46401639eb0bc0b9"
+            ],
+            [
+                "706daa418067cd7b"
+            ]
+        ]
+    },
+    {
+        "id": "65e8e60abf20ae26",
+        "type": "chatbot-rules",
+        "z": "bb11a9f023699cbe",
+        "name": "Is Lang Request Enabled ?true",
+        "rules": [
+            {
+                "type": "isVariable",
+                "variable": "chatBotSettings.language_request.enable",
+                "value": "true"
+            },
+            {
+                "type": "catchAll"
+            }
+        ],
+        "outputs": 2,
+        "x": 650,
+        "y": 320,
+        "wires": [
+            [
+                "22d320306769f0be"
+            ],
+            [
+                "1e4a003d4cd9ae4f"
+            ]
+        ]
+    },
+    {
+        "id": "1e4a003d4cd9ae4f",
+        "type": "function",
+        "z": "bb11a9f023699cbe",
+        "name": "Set Default Lang",
+        "func": "const chatContext = msg.chat();\nconst chatVariables = await chatContext.all();\nconst defaultLang = chatVariables.chatBotSettings.language_request.buttons.find((lang) => lang.active);\nawait chatContext.set('lang', defaultLang.lang);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 890,
+        "y": 340,
+        "wires": [
+            [
+                "46401639eb0bc0b9"
+            ]
+        ]
+    },
+    {
+        "id": "6b017c3340d06ad9",
+        "type": "subflow:943349a22327be26",
+        "z": "bb11a9f023699cbe",
+        "name": "",
+        "x": 1510,
+        "y": 300,
+        "wires": [
+            [
+                "239a4ae980da6fc8"
+            ]
+        ]
+    },
+    {
+        "id": "2d4c5067c1fec23d",
+        "type": "chatbot-rules",
+        "z": "bb11a9f023699cbe",
+        "name": "is custom? ",
+        "rules": [
+            {
+                "type": "isVariable",
+                "variable": "chatBotSettings.main_settings.start_dialog.logic_type",
+                "value": "standard"
+            },
+            {
+                "type": "catchAll"
+            }
+        ],
+        "outputs": 2,
+        "x": 1350,
+        "y": 320,
+        "wires": [
+            [
+                "6b017c3340d06ad9"
+            ],
+            [
+                "6aa4a016bcc166b9"
+            ]
+        ]
+    },
+    {
+        "id": "6aa4a016bcc166b9",
+        "type": "subflow:79c395dfd390cbf9",
+        "z": "bb11a9f023699cbe",
+        "name": "",
+        "x": 1540,
+        "y": 340,
+        "wires": [
+            [
+                "239a4ae980da6fc8"
+            ]
+        ]
+    },
+    {
+        "id": "da468b390536748e",
+        "type": "subflow:943349a22327be26",
+        "z": "bb11a9f023699cbe",
+        "name": "",
+        "x": 1530,
+        "y": 200,
+        "wires": [
+            [
+                "9da50570c3ea9884"
+            ]
+        ]
+    },
+    {
+        "id": "7ce510f50e8f68c1",
+        "type": "subflow:79c395dfd390cbf9",
+        "z": "bb11a9f023699cbe",
+        "name": "",
+        "x": 1560,
+        "y": 240,
+        "wires": [
+            [
+                "9da50570c3ea9884"
+            ]
+        ]
+    },
+    {
+        "id": "7432bcaaf8a972cc",
+        "type": "switch",
+        "z": "bb11a9f023699cbe",
+        "name": "event switch",
+        "property": "originalMessage.event",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "conversation_status_changed",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "custom.bot.get_email",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "custom.bot.get_phone",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 3,
+        "x": 330,
+        "y": 620,
+        "wires": [
+            [
+                "8564d981b01cd6c2"
+            ],
+            [
+                "bc8e80e1b33c902b"
+            ],
+            [
+                "4aad530cd86f8693"
+            ]
+        ]
+    },
+    {
+        "id": "8564d981b01cd6c2",
+        "type": "switch",
+        "z": "bb11a9f023699cbe",
+        "name": "open \\ resolved \\ snoozed",
+        "property": "originalMessage.status",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "open",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "resolved",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "snoozed",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 3,
+        "x": 550,
+        "y": 600,
+        "wires": [
+            [
+                "fff0681dcc244c4c"
+            ],
+            [
+                "3f3dd0e43ad8c069",
+                "fff0681dcc244c4c"
+            ],
+            [
+                "3c3da2f3aa6534d5"
+            ]
+        ]
+    },
+    {
+        "id": "975efe0feb9ed843",
+        "type": "subflow:700f177d5ce9cfc4",
+        "z": "bb11a9f023699cbe",
+        "name": "",
+        "x": 1370,
+        "y": 380,
+        "wires": [
+            [],
+            [
+                "4745ccdcd7fff262"
+            ]
+        ]
+    },
+    {
+        "id": "239a4ae980da6fc8",
+        "type": "chatbot-rules",
+        "z": "bb11a9f023699cbe",
+        "name": "Is menu Enabled ?",
+        "rules": [
+            {
+                "type": "isVariable",
+                "variable": "chatBotSettings.menu.enable",
+                "value": "true"
+            },
+            {
+                "type": "catchAll"
+            }
+        ],
+        "outputs": 2,
+        "x": 950,
+        "y": 420,
+        "wires": [
+            [
+                "d0c59ac10cb32731"
+            ],
+            [
+                "2899a397ed20279c"
+            ]
+        ]
+    },
+    {
+        "id": "2899a397ed20279c",
+        "type": "subflow:64336e09392f9190",
+        "z": "bb11a9f023699cbe",
+        "name": "",
+        "x": 1140,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "d0c59ac10cb32731",
+        "type": "chatbot-rules",
+        "z": "bb11a9f023699cbe",
+        "name": "is custom? ",
+        "rules": [
+            {
+                "type": "isVariable",
+                "variable": "chatBotSettings.menu.logic_type",
+                "value": "standard"
+            },
+            {
+                "type": "catchAll"
+            }
+        ],
+        "outputs": 2,
+        "x": 1150,
+        "y": 400,
+        "wires": [
+            [
+                "975efe0feb9ed843"
+            ],
+            [
+                "e7efe0bf99dfb746"
+            ]
+        ]
+    },
+    {
+        "id": "e7efe0bf99dfb746",
+        "type": "subflow:7c31c95e57fd8f66",
+        "z": "bb11a9f023699cbe",
+        "name": "",
+        "x": 1400,
+        "y": 420,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "cf774679045bd729",
+        "type": "subflow:25acad7fe46431ae",
+        "z": "bb11a9f023699cbe",
+        "name": "",
+        "x": 890,
+        "y": 520,
+        "wires": [
+            [
+                "ad6ceb1caf22a577",
+                "b9be739976749df6"
+            ]
+        ]
+    },
+    {
+        "id": "85110c6ac99dbfcd",
+        "type": "subflow:88d44d187c507e3a",
+        "z": "bb11a9f023699cbe",
+        "name": "",
+        "x": 1470,
+        "y": 480,
+        "wires": [
+            [
+                "3bc2fe3169378526"
+            ]
+        ]
+    },
+    {
+        "id": "7fcdc3da17915943",
+        "type": "chatbot-rules",
+        "z": "bb11a9f023699cbe",
+        "name": "is custom? ",
+        "rules": [
+            {
+                "type": "isVariable",
+                "variable": "chatBotSettings.main_settings.end_dialog.logic_type",
+                "value": "standard"
+            },
+            {
+                "type": "catchAll"
+            }
+        ],
+        "outputs": 2,
+        "x": 730,
+        "y": 540,
+        "wires": [
+            [
+                "cf774679045bd729"
+            ],
+            [
+                "f2a5de6d96f2edb4"
+            ]
+        ]
+    },
+    {
+        "id": "3acbecc1aba75f63",
+        "type": "chatbot-rules",
+        "z": "bb11a9f023699cbe",
+        "name": "is custom? ",
+        "rules": [
+            {
+                "type": "isVariable",
+                "variable": "chatBotSettings.csat.logic_type",
+                "value": "standard"
+            },
+            {
+                "type": "catchAll"
+            }
+        ],
+        "outputs": 2,
+        "x": 1310,
+        "y": 500,
+        "wires": [
+            [
+                "85110c6ac99dbfcd"
+            ],
+            [
+                "45489ff3613a794f"
+            ]
+        ]
+    },
+    {
+        "id": "f2a5de6d96f2edb4",
+        "type": "subflow:d7b251862f91435f",
+        "z": "bb11a9f023699cbe",
+        "name": "",
+        "x": 920,
+        "y": 560,
+        "wires": [
+            [
+                "ad6ceb1caf22a577",
+                "b9be739976749df6"
+            ]
+        ]
+    },
+    {
+        "id": "45489ff3613a794f",
+        "type": "subflow:86d9816ca9c8075e",
+        "z": "bb11a9f023699cbe",
+        "name": "",
+        "x": 1500,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "706daa418067cd7b",
+        "type": "function",
+        "z": "bb11a9f023699cbe",
+        "name": "Set Default Lang",
+        "func": "const chatContext = msg.chat();\nconst chatVariables = await chatContext.all();\nlet langs = chatVariables.chatBotSettings.language_request.buttons;\nlangs = langs.sort((a, b) => {\n    return a.id > b.id ? -1 : 1;\n})\nconst defaultLang = langs.find((lang) => lang.active);\nawait chatContext.set('lang', defaultLang.lang);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1090,
+        "y": 280,
+        "wires": [
+            [
+                "fb336ff3a8961de9"
+            ]
+        ]
+    },
+    {
+        "id": "af4021e795347ade",
+        "type": "chatbot-rules",
+        "z": "bb11a9f023699cbe",
+        "name": "is custom? ",
+        "rules": [
+            {
+                "type": "isVariable",
+                "variable": "chatBotSettings.main_settings.start_dialog.logic_type",
+                "value": "standard"
+            },
+            {
+                "type": "catchAll"
+            }
+        ],
+        "outputs": 2,
+        "x": 1370,
+        "y": 220,
+        "wires": [
+            [
+                "da468b390536748e"
+            ],
+            [
+                "7ce510f50e8f68c1"
+            ]
+        ]
+    },
+    {
+        "id": "ad6ceb1caf22a577",
+        "type": "chatbot-rules",
+        "z": "bb11a9f023699cbe",
+        "name": "Is csat Enabled ?",
+        "rules": [
+            {
+                "type": "isVariable",
+                "variable": "chatBotSettings.csat.enable",
+                "value": "true"
+            },
+            {
+                "type": "catchAll"
+            }
+        ],
+        "outputs": 2,
+        "x": 1130,
+        "y": 520,
+        "wires": [
+            [
+                "3acbecc1aba75f63"
+            ],
+            [
+                "cc43bfd9ec705de3",
+                "32822326a5b8f1df"
+            ]
+        ]
+    },
+    {
+        "id": "99166bb5c99875bc",
+        "type": "link in",
+        "z": "bb11a9f023699cbe",
+        "name": "main logic",
+        "links": [
+            "3bc2fe3169378526"
+        ],
+        "x": 255,
+        "y": 220,
+        "wires": [
+            [
+                "a38c810ca54f6606"
+            ]
+        ]
+    },
+    {
+        "id": "3bc2fe3169378526",
+        "type": "link out",
+        "z": "bb11a9f023699cbe",
+        "name": "else",
+        "mode": "link",
+        "links": [
+            "99166bb5c99875bc"
+        ],
+        "x": 1555,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "b36a0b967b088de7",
+        "type": "debug",
+        "z": "bb11a9f023699cbe",
+        "name": "BotAgent IN",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 90,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "dfa2d029ec9576a6",
+        "type": "function",
+        "z": "bb11a9f023699cbe",
+        "name": "log global",
+        "func": "// node.warn(await msg.chat().all())\nnode.warn(global.keys());\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 780,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "593e112c64ed94ec",
+        "type": "function",
+        "z": "bb11a9f023699cbe",
+        "name": "clear settings",
+        "func": "// node.warn(await msg.chat().get('chatBotSettings'));\nnode.warn(await msg.chat().get('csatSettings'));\nawait msg.chat().remove('chatBotSettings');\nawait msg.chat().remove('csatSettings');\nawait msg.chat().remove('endDialogSettings');\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 470,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3f3dd0e43ad8c069",
+        "type": "function",
+        "z": "bb11a9f023699cbe",
+        "name": "delete Tracking",
+        "func": "const chat = msg.chat();\nawait chat.remove(\n    \"chatwoot-botagent_currentConversationNode\",\n    \"chatwoot-botagent_currentConversationNode_at\"\n)\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 560,
+        "y": 540,
+        "wires": [
+            [
+                "7fcdc3da17915943"
+            ]
+        ]
+    },
+    {
+        "id": "456de33daf7a3405",
+        "type": "chatbot-chatwoot-conversation-state",
+        "z": "bb11a9f023699cbe",
+        "name": "",
+        "isAnswered": false,
+        "isTransferred": true,
+        "answerTimeout": "0",
+        "x": 580,
+        "y": 360,
+        "wires": [
+            [],
+            [
+                "65e8e60abf20ae26"
+            ]
+        ]
+    },
+    {
+        "id": "f52a700ace64051c",
+        "type": "function",
+        "z": "bb11a9f023699cbe",
+        "name": "log context",
+        "func": "node.warn(await msg.chat().all());\n// await msg.chat().remove('chatBotSettings');\n// await msg.chat().remove('csatSettings');\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 630,
+        "y": 160,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2326a5f8ccbaa08c",
+        "type": "subflow:6f5ebf07b4698867",
+        "z": "bb11a9f023699cbe",
+        "name": "",
+        "x": 360,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "8f315addc2632c15",
+        "type": "link in",
+        "z": "bb11a9f023699cbe",
+        "name": "to redis",
+        "links": [
+            "4745ccdcd7fff262",
+            "3c3da2f3aa6534d5"
+        ],
+        "x": 295,
+        "y": 520,
+        "wires": [
+            [
+                "2326a5f8ccbaa08c"
+            ]
+        ]
+    },
+    {
+        "id": "4745ccdcd7fff262",
+        "type": "link out",
+        "z": "bb11a9f023699cbe",
+        "name": "redis",
+        "mode": "link",
+        "links": [
+            "8f315addc2632c15"
+        ],
+        "x": 1815,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "46401639eb0bc0b9",
+        "type": "chatbot-rules",
+        "z": "bb11a9f023699cbe",
+        "name": "Is Start Message Enabled ?",
+        "rules": [
+            {
+                "type": "isVariable",
+                "variable": "chatBotSettings.main_settings.start_dialog.enable",
+                "value": "true"
+            },
+            {
+                "type": "catchAll"
+            }
+        ],
+        "outputs": 2,
+        "x": 1140,
+        "y": 340,
+        "wires": [
+            [
+                "2d4c5067c1fec23d"
+            ],
+            [
+                "239a4ae980da6fc8"
+            ]
+        ]
+    },
+    {
+        "id": "fb336ff3a8961de9",
+        "type": "chatbot-rules",
+        "z": "bb11a9f023699cbe",
+        "name": "Is Start Message Enabled ?",
+        "rules": [
+            {
+                "type": "isVariable",
+                "variable": "chatBotSettings.main_settings.start_dialog.enable",
+                "value": "true"
+            },
+            {
+                "type": "catchAll"
+            }
+        ],
+        "outputs": 2,
+        "x": 1140,
+        "y": 240,
+        "wires": [
+            [
+                "af4021e795347ade"
+            ],
+            [
+                "239a4ae980da6fc8"
+            ]
+        ]
+    },
+    {
+        "id": "8a9b7916dc72a310",
+        "type": "http request",
+        "z": "bb11a9f023699cbe",
+        "name": "",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 330,
+        "y": 800,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f763a975f12246cf",
+        "type": "function",
+        "z": "bb11a9f023699cbe",
+        "name": "set req toggle_status: Open  ",
+        "func": "const configId = msg.configId;\nconst novatalksUrl = global.get(`${configId}-novatalksUrl`);\nconst novatalksAccountId = global.get(`${configId}-novatalksAccountId`);\nconst token = global.get(`${configId}-novatalksToken`);\nconst { chatId } = msg.originalMessage;\nmsg.url = `${novatalksUrl}/api/v1/accounts/${novatalksAccountId}/integrations/conversations/${chatId}/toggle_status`;\nmsg.payload = { status: \"open\" };\nmsg.headers = { api_access_token: token };\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 760,
+        "wires": [
+            [
+                "8a9b7916dc72a310"
+            ]
+        ]
+    },
+    {
+        "id": "2edb4df3aba1c525",
+        "type": "debug",
+        "z": "bb11a9f023699cbe",
+        "name": "BOTAGENT EVENT",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 100,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "fbb96c6fdd9783a6",
+        "type": "debug",
+        "z": "bb11a9f023699cbe",
+        "name": "BotAgent OUT",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 100,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "c80ac148637ec809",
+        "type": "chatbot-chatwoot-conversation-switch",
+        "z": "bb11a9f023699cbe",
+        "name": "",
+        "x": 160,
+        "y": 380,
+        "wires": [
+            [
+                "a38c810ca54f6606"
+            ],
+            [],
+            [],
+            [
+                "a38c810ca54f6606"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "75b18777dae53af7",
+        "type": "change",
+        "z": "bb11a9f023699cbe",
+        "name": "clear all q",
+        "rules": [
+            {
+                "t": "set",
+                "p": "control",
+                "pt": "msg",
+                "to": "cleanAll",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 730,
+        "y": 40,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6867d7706d3d7bde",
+        "type": "chats-queue",
+        "z": "bb11a9f023699cbe",
+        "name": "",
+        "queueSelect": "chatId",
+        "controlFlag": "control",
+        "defaultQueue": "default",
+        "allQueues": "all",
+        "triggerCmd": "trigger",
+        "statusCmd": "status",
+        "pauseCmd": "pause",
+        "resumeCmd": "resume",
+        "flushCmd": "flush",
+        "resetCmd": "reset",
+        "peekCmd": "peek",
+        "dropCmd": "drop",
+        "maximumCmd": "maximum",
+        "newestCmd": "newest",
+        "protectCmd": "protect",
+        "deleteCmd": "delete",
+        "paused": false,
+        "protect": false,
+        "keepNewestDefault": false,
+        "maxSizeDefault": "1",
+        "protectDefault": false,
+        "deleteOlderThan": "",
+        "persist": true,
+        "newValue": "value",
+        "storeName": "memoryOnly",
+        "statusOutput": false,
+        "outputs": 1,
+        "x": 390,
+        "y": 340,
+        "wires": [
+            [
+                "456de33daf7a3405"
+            ]
+        ]
+    },
+    {
+        "id": "b72d24f5e3020dbd",
+        "type": "change",
+        "z": "bb11a9f023699cbe",
+        "name": "drop q with chatId",
+        "rules": [
+            {
+                "t": "set",
+                "p": "control",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
+            },
+            {
+                "t": "set",
+                "p": "chatId",
+                "pt": "msg",
+                "to": "payload.chatId",
+                "tot": "msg"
+            },
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "delete",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 430,
+        "y": 420,
+        "wires": [
+            [
+                "6867d7706d3d7bde"
+            ]
+        ]
+    },
+    {
+        "id": "a38c810ca54f6606",
+        "type": "change",
+        "z": "bb11a9f023699cbe",
+        "name": "set secector q",
+        "rules": [
+            {
+                "t": "set",
+                "p": "chatId",
+                "pt": "msg",
+                "to": "payload.chatId",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 360,
+        "y": 280,
+        "wires": [
+            [
+                "6867d7706d3d7bde"
+            ]
+        ]
+    },
+    {
+        "id": "cc43bfd9ec705de3",
+        "type": "chatbot-context",
+        "z": "bb11a9f023699cbe",
+        "command": "delete",
+        "fieldValue": "",
+        "fieldType": "str",
+        "fieldName": "chatBotSettings",
+        "x": 1320,
+        "y": 540,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "fdcdcc2cad157efc",
+        "type": "http request",
+        "z": "bb11a9f023699cbe",
+        "g": "8dac35c6375f063b",
+        "name": "",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1210,
+        "y": 680,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "32822326a5b8f1df",
+        "type": "chatbot-context",
+        "z": "bb11a9f023699cbe",
+        "command": "delete",
+        "fieldValue": "",
+        "fieldType": "str",
+        "fieldName": "workingHoursValidate",
+        "x": 1320,
+        "y": 580,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f620c059e80ac05e",
+        "type": "link in",
+        "z": "bb11a9f023699cbe",
+        "name": "link in 3",
+        "links": [
+            "fff0681dcc244c4c"
+        ],
+        "x": 295,
+        "y": 420,
+        "wires": [
+            [
+                "b72d24f5e3020dbd"
+            ]
+        ]
+    },
+    {
+        "id": "fff0681dcc244c4c",
+        "type": "link out",
+        "z": "bb11a9f023699cbe",
+        "name": "link out 7",
+        "mode": "link",
+        "links": [
+            "f620c059e80ac05e"
+        ],
+        "x": 715,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "bc8e80e1b33c902b",
+        "type": "subflow:ddd5b4b765cb66a0",
+        "z": "bb11a9f023699cbe",
+        "name": "",
+        "x": 380,
+        "y": 680,
+        "wires": [
+            [
+                "f763a975f12246cf"
+            ]
+        ]
+    },
+    {
+        "id": "4aad530cd86f8693",
+        "type": "subflow:e68505ad609a726f",
+        "z": "bb11a9f023699cbe",
+        "name": "",
+        "x": 400,
+        "y": 720,
+        "wires": [
+            [
+                "f763a975f12246cf"
+            ]
+        ]
+    },
+    {
+        "id": "3c3da2f3aa6534d5",
+        "type": "link out",
+        "z": "bb11a9f023699cbe",
+        "name": "redis",
+        "mode": "link",
+        "links": [
+            "8f315addc2632c15"
+        ],
+        "x": 715,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "baa0c2fece8d4ef8",
+        "type": "link in",
+        "z": "bb11a9f023699cbe",
+        "g": "8dac35c6375f063b",
+        "name": "link in 4",
+        "links": [
+            "b9be739976749df6"
+        ],
+        "x": 825,
+        "y": 680,
+        "wires": [
+            [
+                "2b4182c008d56ed2",
+                "6dab09be487494d2"
+            ]
+        ]
+    },
+    {
+        "id": "b9be739976749df6",
+        "type": "link out",
+        "z": "bb11a9f023699cbe",
+        "name": "link out 8",
+        "mode": "link",
+        "links": [
+            "baa0c2fece8d4ef8"
+        ],
+        "x": 1105,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "50a12b5a8f843fa0",
+        "type": "chatbot-chatwoot-botagent-node",
+        "botname": "v3",
+        "insecureToken": "",
+        "chatWootUrl": "http://ntk-ua-presentation-engine:3000",
+        "accountId": "1",
+        "webHook": "http://ntk-ua-presentation-botflow:1880/redbot/chatwoot-botagent/novatalks-botagent/1",
+        "requestTimeout": "3000",
+        "store": "faf5380913deb505",
+        "maxRetryAttempts": "3",
+        "insecure": false,
+        "isRetryEnabled": false,
+        "debug": true
+    },
+    {
+        "id": "faf5380913deb505",
+        "type": "chatbot-context-store",
+        "name": "1",
+        "contextStorage": "redis",
+        "contextParams": "{\"port\":6379,\"host\":\"ntk-ua-presentation-redis\",\"family\":4,\"db\":0}",
+        "contextParamsType": "json"
+    }
+]

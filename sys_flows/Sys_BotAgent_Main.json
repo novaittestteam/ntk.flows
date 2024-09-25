@@ -1,0 +1,4253 @@
+[
+    {
+        "id": "7711a453e6d3c661",
+        "type": "subflow",
+        "name": "Working Time",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 60,
+                "y": 420,
+                "wires": [
+                    {
+                        "id": "72c3c4e90701dafd"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 910,
+                "y": 420,
+                "wires": [
+                    {
+                        "id": "80dca633657f3624",
+                        "port": 0
+                    }
+                ]
+            },
+            {
+                "x": 580,
+                "y": 140,
+                "wires": [
+                    {
+                        "id": "72c3c4e90701dafd",
+                        "port": 0
+                    },
+                    {
+                        "id": "72c3c4e90701dafd",
+                        "port": 1
+                    },
+                    {
+                        "id": "e0d5f9f23d27e839",
+                        "port": 0
+                    },
+                    {
+                        "id": "80dca633657f3624",
+                        "port": 1
+                    }
+                ]
+            }
+        ],
+        "env": [],
+        "meta": {},
+        "color": "#A6BBCF",
+        "inputLabels": [
+            "in message"
+        ],
+        "outputLabels": [
+            "match",
+            "no match"
+        ],
+        "icon": "font-awesome/fa-clock-o"
+    },
+    {
+        "id": "72c3c4e90701dafd",
+        "type": "chronos-switch",
+        "z": "7711a453e6d3c661",
+        "name": "spicific days",
+        "config": "18d1ce9707b06851",
+        "baseTime": "",
+        "baseTimeType": "msgIngress",
+        "conditions": [
+            {
+                "operator": "days",
+                "label": "1. JAN",
+                "operands": {
+                    "type": "specific",
+                    "day": 1,
+                    "month": "january",
+                    "exclude": false
+                }
+            },
+            {
+                "operator": "days",
+                "label": "1. MAY",
+                "operands": {
+                    "type": "specific",
+                    "day": 1,
+                    "month": "may",
+                    "exclude": false
+                }
+            },
+            {
+                "operator": "otherwise",
+                "label": "otherwise"
+            }
+        ],
+        "stopOnFirstMatch": false,
+        "outputs": 3,
+        "x": 190,
+        "y": 420,
+        "wires": [
+            [],
+            [],
+            [
+                "e0d5f9f23d27e839"
+            ]
+        ]
+    },
+    {
+        "id": "e0d5f9f23d27e839",
+        "type": "chronos-switch",
+        "z": "7711a453e6d3c661",
+        "name": "week days",
+        "config": "18d1ce9707b06851",
+        "baseTime": "",
+        "baseTimeType": "msgIngress",
+        "conditions": [
+            {
+                "operator": "weekdays",
+                "label": "week days SU SA",
+                "operands": [
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    true
+                ]
+            },
+            {
+                "operator": "otherwise",
+                "label": "otherwise"
+            }
+        ],
+        "stopOnFirstMatch": false,
+        "outputs": 2,
+        "x": 450,
+        "y": 420,
+        "wires": [
+            [],
+            [
+                "80dca633657f3624"
+            ]
+        ]
+    },
+    {
+        "id": "80dca633657f3624",
+        "type": "chronos-switch",
+        "z": "7711a453e6d3c661",
+        "name": "working time",
+        "config": "18d1ce9707b06851",
+        "baseTime": "",
+        "baseTimeType": "msgIngress",
+        "conditions": [
+            {
+                "operator": "between",
+                "label": "between 09:00 and 23:00",
+                "operands": [
+                    {
+                        "type": "time",
+                        "value": "09:00",
+                        "offset": 0,
+                        "random": false
+                    },
+                    {
+                        "type": "time",
+                        "value": "23:00",
+                        "offset": 0,
+                        "random": false
+                    }
+                ]
+            },
+            {
+                "operator": "otherwise",
+                "label": "otherwise"
+            }
+        ],
+        "stopOnFirstMatch": false,
+        "outputs": 2,
+        "x": 670,
+        "y": 420,
+        "wires": [
+            [],
+            []
+        ]
+    },
+    {
+        "id": "18d1ce9707b06851",
+        "type": "chronos-config",
+        "name": "Kyiv",
+        "timezone": "Europe/Kiev",
+        "sunPositions": []
+    },
+    {
+        "id": "35df3f61639c265d",
+        "type": "subflow",
+        "name": "Transfer",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 120,
+                "y": 360,
+                "wires": [
+                    {
+                        "id": "a5364685dbdf1280"
+                    }
+                ]
+            }
+        ],
+        "out": [],
+        "env": [],
+        "meta": {},
+        "color": "#A6BBCF",
+        "icon": "node-red-contrib-chatbot/chatWoot.png"
+    },
+    {
+        "id": "e5718afb3c3ccffc",
+        "type": "chatbot-chatwoot-botagent-transfer",
+        "z": "35df3f61639c265d",
+        "name": "Sales",
+        "transferTarget": "team",
+        "transferTargetId": "1",
+        "assignmentAlgorithm": "none",
+        "bot": "66f0be5acb2a22b6",
+        "x": 890,
+        "y": 380,
+        "wires": [
+            [
+                "c641a4d75f15b5ee"
+            ]
+        ]
+    },
+    {
+        "id": "a5364685dbdf1280",
+        "type": "function",
+        "z": "35df3f61639c265d",
+        "name": "Get Close Msg",
+        "func": "let contextchat = msg.chat();\nlet currenttime = Date.now();\nlet outtime = await contextchat.get('chatwoot-botagent_currentConversationClosed_at');\nif (!outtime) return [msg, null]; //first pin\nlet timeout = global.get('lastAgentTimeout') * 60000; //3 Min\nif (currenttime >= outtime + timeout) {\n    await contextchat.remove('chatwoot-botagent_currentConversationClosed_at')\n    return [msg, null]\n};\nawait contextchat.set('chatwoot-botagent_conversationId', msg.payload.chatId);\nreturn [null, msg]; //second pin",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 360,
+        "wires": [
+            [
+                "e5718afb3c3ccffc"
+            ],
+            [
+                "35deb90e085c7fa3"
+            ]
+        ]
+    },
+    {
+        "id": "cc6fe95d36cd9b16",
+        "type": "chatbot-chatwoot-botagent-send",
+        "z": "35df3f61639c265d",
+        "name": "MiniBot Sender",
+        "bot": "66f0be5acb2a22b6",
+        "botProduction": "66f0be5acb2a22b6",
+        "track": false,
+        "passThrough": false,
+        "errorOutput": false,
+        "disableChangeStatus": false,
+        "outputs": 0,
+        "x": 1400,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "45f2de441f17f9aa",
+        "type": "chatbot-chatwoot-botagent-transfer",
+        "z": "35df3f61639c265d",
+        "name": "msg",
+        "transferTarget": "agent",
+        "transferTargetId": "",
+        "bot": "66f0be5acb2a22b6",
+        "x": 890,
+        "y": 480,
+        "wires": [
+            [
+                "cc2a4a7043f9e6ee"
+            ]
+        ]
+    },
+    {
+        "id": "c641a4d75f15b5ee",
+        "type": "chatbot-rules",
+        "z": "35df3f61639c265d",
+        "name": "what lang",
+        "rules": [
+            {
+                "type": "isVariable",
+                "variable": "lang",
+                "value": "ua"
+            },
+            {
+                "type": "isVariable",
+                "variable": "lang",
+                "value": "ru"
+            },
+            {
+                "type": "isVariable",
+                "variable": "lang",
+                "value": "en"
+            }
+        ],
+        "outputs": 3,
+        "x": 1040,
+        "y": 320,
+        "wires": [
+            [
+                "2b2482a2458b82c4"
+            ],
+            [
+                "f93f64391394bf15"
+            ],
+            [
+                "517455b449c39ce0"
+            ]
+        ],
+        "outputLabels": [
+            "ua",
+            "ru",
+            "en"
+        ]
+    },
+    {
+        "id": "2b2482a2458b82c4",
+        "type": "chatbot-message",
+        "z": "35df3f61639c265d",
+        "name": "ua",
+        "message": [
+            {
+                "message": "Очікуйте, оператор підключиться до розмови найближчим часом."
+            }
+        ],
+        "language": "none",
+        "x": 1210,
+        "y": 280,
+        "wires": [
+            [
+                "cc6fe95d36cd9b16"
+            ]
+        ]
+    },
+    {
+        "id": "f93f64391394bf15",
+        "type": "chatbot-message",
+        "z": "35df3f61639c265d",
+        "name": "ru",
+        "message": [
+            {
+                "message": "Ожидайте, оператор подключится к разговору в ближайшее время."
+            }
+        ],
+        "language": "none",
+        "x": 1210,
+        "y": 320,
+        "wires": [
+            [
+                "cc6fe95d36cd9b16"
+            ]
+        ]
+    },
+    {
+        "id": "517455b449c39ce0",
+        "type": "chatbot-message",
+        "z": "35df3f61639c265d",
+        "name": "en",
+        "message": [
+            {
+                "message": "Wait, the operator will connect to the conversation shortly."
+            }
+        ],
+        "language": "none",
+        "x": 1210,
+        "y": 360,
+        "wires": [
+            [
+                "cc6fe95d36cd9b16"
+            ]
+        ]
+    },
+    {
+        "id": "cc2a4a7043f9e6ee",
+        "type": "chatbot-rules",
+        "z": "35df3f61639c265d",
+        "name": "what lang",
+        "rules": [
+            {
+                "type": "isVariable",
+                "variable": "lang",
+                "value": "ua"
+            },
+            {
+                "type": "isVariable",
+                "variable": "lang",
+                "value": "ru"
+            },
+            {
+                "type": "isVariable",
+                "variable": "lang",
+                "value": "en"
+            }
+        ],
+        "outputs": 3,
+        "x": 1040,
+        "y": 520,
+        "wires": [
+            [
+                "e4fd5e16683d08bd"
+            ],
+            [
+                "cb4392de0c2e1e76"
+            ],
+            [
+                "95970a21e671f1f7"
+            ]
+        ],
+        "outputLabels": [
+            "ua",
+            "ru",
+            "en"
+        ]
+    },
+    {
+        "id": "e4fd5e16683d08bd",
+        "type": "chatbot-message",
+        "z": "35df3f61639c265d",
+        "name": "ua",
+        "message": [
+            {
+                "message": "Очікуйте, оператор, з яким ви спілкувались, підключиться до розмови найближчим часом."
+            }
+        ],
+        "language": "none",
+        "x": 1210,
+        "y": 480,
+        "wires": [
+            [
+                "cc6fe95d36cd9b16"
+            ]
+        ]
+    },
+    {
+        "id": "cb4392de0c2e1e76",
+        "type": "chatbot-message",
+        "z": "35df3f61639c265d",
+        "name": "ru",
+        "message": [
+            {
+                "message": "Ожидайте, оператор, с которым вы общались, подключится к разговору в ближайшее время."
+            }
+        ],
+        "language": "none",
+        "x": 1210,
+        "y": 520,
+        "wires": [
+            [
+                "cc6fe95d36cd9b16"
+            ]
+        ]
+    },
+    {
+        "id": "95970a21e671f1f7",
+        "type": "chatbot-message",
+        "z": "35df3f61639c265d",
+        "name": "en",
+        "message": [
+            {
+                "message": "Wait, your operator will connect to the conversation shortly."
+            }
+        ],
+        "language": "none",
+        "x": 1210,
+        "y": 560,
+        "wires": [
+            [
+                "cc6fe95d36cd9b16"
+            ]
+        ]
+    },
+    {
+        "id": "4771298f5bebc42a",
+        "type": "function",
+        "z": "35df3f61639c265d",
+        "name": "get agents",
+        "func": "const contextchat = msg.chat();\n\nconst lastAgentId = await contextchat.get('chatwoot-botagent_lastAgentId');\nmsg.url = global.get(\"novatalksURL\") + \"/api/v1/accounts/\" + global.get(\"novatalksAccountId\") + \"/agents\";\nmsg.headers = { api_access_token: global.get(\"novatalksToken\") };\nmsg.method = 'get';\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 250,
+        "y": 560,
+        "wires": [
+            [
+                "02dc3b8799f09198"
+            ]
+        ]
+    },
+    {
+        "id": "40b7508d2140ac30",
+        "type": "function",
+        "z": "35df3f61639c265d",
+        "name": "check agent status",
+        "func": "const contextchat = msg.chat();\nconst lastAgentId = await contextchat.get('chatwoot-botagent_lastAgentId');\nnode.warn(`lastAgentId ${lastAgentId}`);\nfor (let agent of msg.payload) {\n    if (agent.id == lastAgentId && agent.availability_status === \"online\") {\n        msg.payload = {\n            ...msg.previous,\n            transferTargetId: lastAgentId.toString(),\n        }\n        return [msg, null];\n    }\n};\nreturn [null, msg];",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 590,
+        "y": 560,
+        "wires": [
+            [
+                "45f2de441f17f9aa"
+            ],
+            [
+                "f77eaa29199a7cf2"
+            ]
+        ]
+    },
+    {
+        "id": "02dc3b8799f09198",
+        "type": "http request",
+        "z": "35df3f61639c265d",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "senderr": false,
+        "x": 410,
+        "y": 560,
+        "wires": [
+            [
+                "40b7508d2140ac30"
+            ]
+        ]
+    },
+    {
+        "id": "35deb90e085c7fa3",
+        "type": "chatbot-push-message",
+        "z": "35df3f61639c265d",
+        "x": 240,
+        "y": 520,
+        "wires": [
+            [
+                "4771298f5bebc42a"
+            ]
+        ]
+    },
+    {
+        "id": "f77eaa29199a7cf2",
+        "type": "chatbot-pop-message",
+        "z": "35df3f61639c265d",
+        "x": 700,
+        "y": 460,
+        "wires": [
+            [
+                "e5718afb3c3ccffc"
+            ]
+        ]
+    },
+    {
+        "id": "8e35da75c3059191",
+        "type": "subflow",
+        "name": "Resolve Inactive",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 40,
+                "y": 300,
+                "wires": [
+                    {
+                        "id": "d3f9e415b1ea8411"
+                    }
+                ]
+            }
+        ],
+        "out": [],
+        "env": [],
+        "meta": {},
+        "color": "#A6BBCF",
+        "inputLabels": [
+            "in"
+        ],
+        "icon": "font-awesome/fa-terminal"
+    },
+    {
+        "id": "c9861c4cd11c41c0",
+        "type": "chatbot-chatwoot-conversation-switch",
+        "z": "8e35da75c3059191",
+        "name": "Event Switch",
+        "x": 590,
+        "y": 260,
+        "wires": [
+            [
+                "9f43eb3b012cf1c8"
+            ],
+            [
+                "9f43eb3b012cf1c8"
+            ],
+            [
+                "9f43eb3b012cf1c8"
+            ],
+            [
+                "9f43eb3b012cf1c8"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "c2b95c7fdda5bbb5",
+        "type": "redis-command",
+        "z": "8e35da75c3059191",
+        "server": "2741790ef3649b41",
+        "command": "SET",
+        "name": "",
+        "topic": "",
+        "params": "[\"EX\",10]",
+        "paramsType": "json",
+        "payloadType": "json",
+        "block": false,
+        "x": 1400,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "82b0b55e22622cdc",
+        "type": "function",
+        "z": "8e35da75c3059191",
+        "name": "set key USER",
+        "func": "msg.payload =[\n    \"lastUserMsg:\" + msg.originalMessage.conversation.id,\n    msg.payload.ts,\n    \"EX\",\n    msg.expireTime\n];\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1220,
+        "y": 300,
+        "wires": [
+            [
+                "c2b95c7fdda5bbb5"
+            ]
+        ]
+    },
+    {
+        "id": "9f43eb3b012cf1c8",
+        "type": "change",
+        "z": "8e35da75c3059191",
+        "name": "set Expire",
+        "rules": [
+            {
+                "t": "set",
+                "p": "expireTime",
+                "pt": "msg",
+                "to": "14400",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 780,
+        "y": 240,
+        "wires": [
+            [
+                "548df1b5ba7e3464"
+            ]
+        ]
+    },
+    {
+        "id": "be1ee84965aafb5f",
+        "type": "http request",
+        "z": "8e35da75c3059191",
+        "name": "",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "senderr": false,
+        "x": 1130,
+        "y": 140,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7b6719431ff9c3d6",
+        "type": "function",
+        "z": "8e35da75c3059191",
+        "name": "set req toggle_status",
+        "func": "if(msg.payload !== \"expired\") return [null, msg];\nlet convId = msg.topic.split(\":\")[2];\nmsg.url = global.get(\"novatalksURL\") + \"/api/v1/accounts/\"\n    + global.get(\"novatalksAccountId\") + \"/conversations/\"\n    + convId + \"/toggle_status\";\nmsg.payload = { \"status\": \"resolved\" };\nmsg.headers = { \"api_access_token\": global.get(\"novatalksToken\") };\nreturn [msg, null];",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 920,
+        "y": 140,
+        "wires": [
+            [
+                "be1ee84965aafb5f"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "18abc4bb41ba627e",
+        "type": "comment",
+        "z": "8e35da75c3059191",
+        "name": "Inactive timeout",
+        "info": "Expire = Inactive timeout\nin seconds!!!\nAfter Expire time record will be delete from redis\nand status will change to resolve\n\n",
+        "x": 800,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "612da16648794697",
+        "type": "comment",
+        "z": "8e35da75c3059191",
+        "name": "number = № of db redis",
+        "info": "",
+        "x": 540,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "f0376258c6a317d0",
+        "type": "switch",
+        "z": "8e35da75c3059191",
+        "name": "",
+        "property": "originalMessage.private",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "false"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 410,
+        "y": 240,
+        "wires": [
+            [
+                "c9861c4cd11c41c0"
+            ]
+        ]
+    },
+    {
+        "id": "538383d338c3d8a1",
+        "type": "redis-in",
+        "z": "8e35da75c3059191",
+        "server": "2741790ef3649b41",
+        "command": "psubscribe",
+        "name": "lastMsg event",
+        "topic": "__keyspace@0__:lastUserMsg:*",
+        "obj": true,
+        "timeout": 0,
+        "x": 550,
+        "y": 100,
+        "wires": [
+            [
+                "7b6719431ff9c3d6",
+                "e08a5187c99d383a"
+            ]
+        ]
+    },
+    {
+        "id": "d3f9e415b1ea8411",
+        "type": "switch",
+        "z": "8e35da75c3059191",
+        "name": "message || event",
+        "property": "payload.type",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "conversation_event",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 2,
+        "x": 230,
+        "y": 300,
+        "wires": [
+            [
+                "dcc33bfd15f24672"
+            ],
+            [
+                "f0376258c6a317d0"
+            ]
+        ]
+    },
+    {
+        "id": "c2c5b51907f71e7c",
+        "type": "redis-command",
+        "z": "8e35da75c3059191",
+        "server": "2741790ef3649b41",
+        "command": "DEL",
+        "name": "del key",
+        "topic": "",
+        "params": "[]",
+        "paramsType": "json",
+        "payloadType": "json",
+        "block": false,
+        "x": 1260,
+        "y": 540,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2c7eace958d6c026",
+        "type": "function",
+        "z": "8e35da75c3059191",
+        "name": "set key",
+        "func": "msg.topic = `lastUserMsg:${msg.originalMessage.id}`;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1120,
+        "y": 520,
+        "wires": [
+            [
+                "c2c5b51907f71e7c"
+            ]
+        ]
+    },
+    {
+        "id": "548df1b5ba7e3464",
+        "type": "switch",
+        "z": "8e35da75c3059191",
+        "name": "incoming || outgoing",
+        "property": "originalMessage.message_type",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "incoming",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "outgoing",
+                "vt": "str"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 2,
+        "x": 800,
+        "y": 340,
+        "wires": [
+            [
+                "ec3a0812cf864e9c"
+            ],
+            [
+                "13cfcbca89ec5351",
+                "15c7f161cde376d9"
+            ]
+        ]
+    },
+    {
+        "id": "13cfcbca89ec5351",
+        "type": "function",
+        "z": "8e35da75c3059191",
+        "name": "set key AGENT(bot)",
+        "func": "msg.payload =[\n    \"lastAgentMsg:\" + msg.originalMessage.conversation.id,\n    msg.payload.ts,\n    \"EX\",\n    msg.expireTime\n];\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1220,
+        "y": 360,
+        "wires": [
+            [
+                "c2b95c7fdda5bbb5"
+            ]
+        ]
+    },
+    {
+        "id": "8be78fb5dd5efd82",
+        "type": "redis-in",
+        "z": "8e35da75c3059191",
+        "server": "2741790ef3649b41",
+        "command": "psubscribe",
+        "name": "lastMsg event",
+        "topic": "__keyspace@0__:lastAgentMsg:*",
+        "obj": true,
+        "timeout": 0,
+        "x": 550,
+        "y": 140,
+        "wires": [
+            [
+                "7b6719431ff9c3d6",
+                "e08a5187c99d383a"
+            ]
+        ]
+    },
+    {
+        "id": "793f31c592e5d40a",
+        "type": "function",
+        "z": "8e35da75c3059191",
+        "name": "set key",
+        "func": "msg.topic = `lastAgentMsg:${msg.originalMessage.id}`;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1120,
+        "y": 560,
+        "wires": [
+            [
+                "c2c5b51907f71e7c"
+            ]
+        ]
+    },
+    {
+        "id": "e08a5187c99d383a",
+        "type": "function",
+        "z": "8e35da75c3059191",
+        "name": "",
+        "func": "if (msg.payload !== \"expired\") return null;\nlet convId = msg.topic.split(\":\")[2];\nlet reason = msg.topic.split(\":\")[1] == \"lastUserMsg\" ? 'user' : 'agent';\nglobal.set(`closeId:${convId}`, reason);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 880,
+        "y": 60,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ec3a0812cf864e9c",
+        "type": "chatbot-chatwoot-conversation-state",
+        "z": "8e35da75c3059191",
+        "name": "",
+        "isAnswered": false,
+        "isTransferred": true,
+        "answerTimeout": "0",
+        "x": 1020,
+        "y": 300,
+        "wires": [
+            [
+                "82b0b55e22622cdc",
+                "a6b77a00f1c33151"
+            ],
+            [
+                "13cfcbca89ec5351",
+                "15c7f161cde376d9"
+            ]
+        ]
+    },
+    {
+        "id": "2c5e9b93f4522183",
+        "type": "comment",
+        "z": "8e35da75c3059191",
+        "name": "not transfered user msg = bot msg",
+        "info": "",
+        "x": 1040,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "dcc33bfd15f24672",
+        "type": "switch",
+        "z": "8e35da75c3059191",
+        "name": "event switch",
+        "property": "originalMessage.event",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "conversation_opened",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "conversation_resolved",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "conversation_status_changed",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 3,
+        "x": 350,
+        "y": 420,
+        "wires": [
+            [],
+            [
+                "2c7eace958d6c026",
+                "793f31c592e5d40a"
+            ],
+            [
+                "e56fa88baecb4169"
+            ]
+        ]
+    },
+    {
+        "id": "e56fa88baecb4169",
+        "type": "switch",
+        "z": "8e35da75c3059191",
+        "name": "event switch",
+        "property": "originalMessage.status",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "open",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "resolved",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 330,
+        "y": 600,
+        "wires": [
+            [],
+            [
+                "2c7eace958d6c026",
+                "793f31c592e5d40a"
+            ]
+        ]
+    },
+    {
+        "id": "37121d38455879f2",
+        "type": "redis-command",
+        "z": "8e35da75c3059191",
+        "server": "2741790ef3649b41",
+        "command": "DEL",
+        "name": "del key",
+        "topic": "",
+        "params": "[]",
+        "paramsType": "json",
+        "payloadType": "json",
+        "block": false,
+        "x": 1600,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "15c7f161cde376d9",
+        "type": "function",
+        "z": "8e35da75c3059191",
+        "name": "del user key",
+        "func": "msg.topic = `lastUserMsg:${msg.originalMessage.conversation.id}`;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1370,
+        "y": 460,
+        "wires": [
+            [
+                "37121d38455879f2"
+            ]
+        ]
+    },
+    {
+        "id": "a6b77a00f1c33151",
+        "type": "function",
+        "z": "8e35da75c3059191",
+        "name": "del agent key",
+        "func": "msg.topic = `lastAgentMsg:${msg.originalMessage.conversation.id}`;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1370,
+        "y": 200,
+        "wires": [
+            [
+                "37121d38455879f2"
+            ]
+        ]
+    },
+    {
+        "id": "18253ae6dce66a61",
+        "type": "redis-config",
+        "z": "8e35da75c3059191",
+        "name": "Local",
+        "options": "{}",
+        "cluster": false,
+        "optionsType": "json"
+    },
+    {
+        "id": "2741790ef3649b41",
+        "type": "redis-config",
+        "z": "8e35da75c3059191",
+        "name": "Redis_0",
+        "options": "{\"port\":6379,\"host\":\"prod-novatalks-v3-demo-redis\",\"family\":4,\"db\":0,\"expirationTime\":600}",
+        "cluster": false,
+        "optionsType": "json"
+    },
+    {
+        "id": "1cbb4b4e35d1170d",
+        "type": "tab",
+        "label": "Sys_BotAgent_Main",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "028465b04404853d",
+        "type": "group",
+        "z": "1cbb4b4e35d1170d",
+        "name": "Auto Resolve conv",
+        "style": {
+            "stroke": "#ffC000",
+            "label": true,
+            "label-position": "n",
+            "color": "#0070c0"
+        },
+        "nodes": [
+            "17e17122c714180c",
+            "3532458cbe8a1cb0",
+            "ec2c40c9efb2b654",
+            "a87ba8b576b76bf3",
+            "9af48587510a41d9",
+            "d463fa470fe71f05",
+            "e1399801a2d22f68"
+        ],
+        "x": 344,
+        "y": 159,
+        "w": 742,
+        "h": 142
+    },
+    {
+        "id": "9510da9ac25b1ce7",
+        "type": "group",
+        "z": "1cbb4b4e35d1170d",
+        "name": "Set global variables on deploy",
+        "style": {
+            "stroke": "#ffC000",
+            "label": true,
+            "label-position": "n",
+            "color": "#0070c0"
+        },
+        "nodes": [
+            "6cf91387760b639e",
+            "bb99eeafc1a5441a",
+            "95d4fbde2d8192ab",
+            "28caa49f7bc3f196",
+            "d7734e084ab40405"
+        ],
+        "x": 14,
+        "y": 19,
+        "w": 992,
+        "h": 122
+    },
+    {
+        "id": "b35ea57eb5d148e1",
+        "type": "group",
+        "z": "1cbb4b4e35d1170d",
+        "name": "Reset agent\\team on close",
+        "style": {
+            "stroke": "#ffC000",
+            "label": true,
+            "label-position": "n",
+            "color": "#0070c0"
+        },
+        "nodes": [
+            "81e3a5d53e630f79",
+            "a7de5969db9ee93d",
+            "dd43c72ff37c2d7d",
+            "980a0e6183d315d5",
+            "6291ae6def985ebc"
+        ],
+        "x": 34,
+        "y": 1059,
+        "w": 432,
+        "h": 162
+    },
+    {
+        "id": "c97f49fd2965ba3f",
+        "type": "group",
+        "z": "1cbb4b4e35d1170d",
+        "name": "End conversation",
+        "style": {
+            "stroke": "#ffC000",
+            "label": true,
+            "label-position": "n",
+            "color": "#0070c0"
+        },
+        "nodes": [
+            "426ae8071765f368",
+            "3a553116c2b4f078",
+            "fe832f3cf14f2fb5",
+            "f7c6c8b67e403fda",
+            "05c47caa0df3f744",
+            "05f2882dbb428a2b",
+            "d202f4fc072d0fde",
+            "cfaf2081c9923c90",
+            "c44ccd9e05dc29f2",
+            "8b6e3b2e6680e34a",
+            "198d81bc5a0b7f96",
+            "a7f732c4eb197256",
+            "b90c76544ad4f2f8",
+            "35fdd2fe7406aacf",
+            "a3473d2148b5e0e3",
+            "963df69bd2af4050"
+        ],
+        "x": 494,
+        "y": 799,
+        "w": 792,
+        "h": 462
+    },
+    {
+        "id": "5c86b34ceefdca7f",
+        "type": "group",
+        "z": "1cbb4b4e35d1170d",
+        "name": "",
+        "style": {
+            "stroke": "#3f93cf",
+            "fill": "#bfbfbf",
+            "label": true,
+            "fill-opacity": "0.5"
+        },
+        "nodes": [
+            "acbbf0786dd8621e",
+            "44c94120d11b1614",
+            "0d49b0e154d37a0b"
+        ],
+        "x": 1034,
+        "y": 19,
+        "w": 472,
+        "h": 122
+    },
+    {
+        "id": "1f4bded911132c54",
+        "type": "group",
+        "z": "1cbb4b4e35d1170d",
+        "name": "EVENT SWITCH",
+        "style": {
+            "stroke": "#ffC000",
+            "label": true,
+            "label-position": "n",
+            "color": "#0070c0"
+        },
+        "nodes": [
+            "18757833cc231bcb",
+            "d17e8b99e4bb8e14",
+            "98d55118ce920454"
+        ],
+        "x": 24,
+        "y": 779,
+        "w": 262,
+        "h": 142
+    },
+    {
+        "id": "41b1fcc7d0f4756f",
+        "type": "group",
+        "z": "1cbb4b4e35d1170d",
+        "name": "Main Logic",
+        "style": {
+            "label": true,
+            "stroke": "#ffC000",
+            "label-position": "n",
+            "color": "#0070c0"
+        },
+        "nodes": [
+            "ce3d0b65b705c0ac",
+            "e4b02c6085de5bab",
+            "773b52dbb985a4ed",
+            "8426a9abaad046ad",
+            "ed811e625fbdd5b2",
+            "645290124454bf94",
+            "2ca8191c0048a4f8",
+            "aa9e10d6a7314c31",
+            "72da68924bbccaca",
+            "2c040f243e473129",
+            "e48a86e592e4e268",
+            "0922cdad5043c644",
+            "a9c414fbc2c590a7",
+            "856f057521daf9bf",
+            "ecb8af564f31acb3",
+            "9f752a52f0fe9bf3",
+            "b42ba5ec0762b7a7",
+            "8af4db916d0b7b55",
+            "792638cb607a4274",
+            "562ac130946f989c",
+            "e1c15e5d7984bc54",
+            "19c8429630ac23f9",
+            "216ac37703ccb45b",
+            "6698b09ce196c8cb",
+            "fd24131ceef9b9ac",
+            "0883cc8ad2fb2b36",
+            "20db4dc7e548e750",
+            "416f33e0053a8060",
+            "3c1e2ff76780aa47",
+            "f6c687b9b4a81d3e",
+            "14cba26f88ba8469",
+            "8798743e17ea0804",
+            "3efac9096f4212a7",
+            "ec5702ccf622ee5a",
+            "38c1cdab2198d023",
+            "6c6992d44193db41",
+            "acd3cc163dcd7179",
+            "c917e3deafb1e5f8",
+            "e03d3fe78cb57257",
+            "cef6c38720debbb4",
+            "8482294161951eb9",
+            "b8836b23e457c98f",
+            "dae9302e73054686",
+            "ddd47d059eceb096",
+            "7da65b11832fe70c",
+            "904824bf538cc243",
+            "e7b3f2d8917ab483",
+            "d1049ba01270977b",
+            "884b20454c9603e1",
+            "eaf849112965b252",
+            "2024239e8228dcfc",
+            "f7b6dac89680a8be",
+            "761bb7718daa4e1c"
+        ],
+        "x": 14,
+        "y": 319,
+        "w": 3522,
+        "h": 442
+    },
+    {
+        "id": "69626c44193078da",
+        "type": "group",
+        "z": "1cbb4b4e35d1170d",
+        "name": "CSAT",
+        "style": {
+            "stroke": "#ffC000",
+            "label": true,
+            "label-position": "n",
+            "color": "#0070c0"
+        },
+        "nodes": [
+            "d802782df615586d",
+            "3cafd17c7eaf2a81",
+            "1728f91a7941a1f8",
+            "a58674412604946f",
+            "1b9263f00669fb1f",
+            "50d01108a18f698a",
+            "8364c5c64004f777",
+            "dd64359383f6143b",
+            "4076052afd4a3303",
+            "2aa3d68c8bdfbef6",
+            "76fd73d8f797c86b",
+            "3e8e54ab97b8ed81",
+            "d599dd062cf46264",
+            "8dad571784362729",
+            "53aa366f750040d7",
+            "d2592c45fab196f0",
+            "aecdab88e8261aa6",
+            "d2948cff5fd6f6bd",
+            "8943ed2fd0346c28",
+            "f853fbe6f8af234a",
+            "3a8183e8947994e3",
+            "67d8b5d771578fb7",
+            "8839e513cf05785e",
+            "2406f284158a7b09",
+            "3a5f47143010d27e",
+            "8f7303821a4f9294",
+            "736d6f405bd561f0"
+        ],
+        "x": 34,
+        "y": 1279,
+        "w": 1512,
+        "h": 462
+    },
+    {
+        "id": "1a05d728e81ec79e",
+        "type": "chatbot-chatwoot-botagent-receive",
+        "z": "1cbb4b4e35d1170d",
+        "name": "BotAgent Incoming",
+        "bot": "66f0be5acb2a22b6",
+        "botProduction": "66f0be5acb2a22b6",
+        "x": 110,
+        "y": 220,
+        "wires": [
+            [
+                "9b37fd3141354f18",
+                "128604d9437a5d64"
+            ],
+            [
+                "e0edbaf3762dcd3f"
+            ],
+            [
+                "1dafde566a309a96"
+            ]
+        ]
+    },
+    {
+        "id": "acbbf0786dd8621e",
+        "type": "function",
+        "z": "1cbb4b4e35d1170d",
+        "g": "5c86b34ceefdca7f",
+        "name": "Manual Conversation State",
+        "func": "let contextchat = msg.chat();\nlet outtime = contextchat.get('chatwoot-botagent_currentConversationOutMessage_at');\nif (!outtime) return [msg, null]; //first pin\nnode.log(\"Message Time Out: \" + outtime);\nlet currenttime = Date.now();\nlet timeout = 3*60000; //15 Min\nnode.log(\"Message Time Out DELTA: \" + (outtime + timeout));\nif (currenttime >= outtime + timeout) return [msg, null];\nreturn [null, msg]; //second pin",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1360,
+        "y": 100,
+        "wires": [
+            [],
+            []
+        ]
+    },
+    {
+        "id": "44c94120d11b1614",
+        "type": "function",
+        "z": "1cbb4b4e35d1170d",
+        "g": "5c86b34ceefdca7f",
+        "name": "Debug to Stdout",
+        "func": "let contextchat = msg.chat();\nnode.log(\"Dump: \"+ JSON.stringify(contextchat.all()));\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1140,
+        "y": 100,
+        "wires": [
+            [],
+            []
+        ]
+    },
+    {
+        "id": "ce3d0b65b705c0ac",
+        "type": "chatbot-chatwoot-conversation-state",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "",
+        "isAnswered": false,
+        "isTransferred": true,
+        "answerTimeout": "2",
+        "x": 240,
+        "y": 640,
+        "wires": [
+            [],
+            [
+                "773b52dbb985a4ed"
+            ]
+        ]
+    },
+    {
+        "id": "0d49b0e154d37a0b",
+        "type": "comment",
+        "z": "1cbb4b4e35d1170d",
+        "g": "5c86b34ceefdca7f",
+        "name": "debug tools",
+        "info": "",
+        "x": 1250,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "17e17122c714180c",
+        "type": "subflow:8e35da75c3059191",
+        "z": "1cbb4b4e35d1170d",
+        "g": "028465b04404853d",
+        "name": "",
+        "x": 980,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "3532458cbe8a1cb0",
+        "type": "switch",
+        "z": "1cbb4b4e35d1170d",
+        "g": "028465b04404853d",
+        "name": "",
+        "property": "resolveInactive",
+        "propertyType": "global",
+        "rules": [
+            {
+                "t": "true"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 830,
+        "y": 220,
+        "wires": [
+            [
+                "17e17122c714180c"
+            ]
+        ]
+    },
+    {
+        "id": "6cf91387760b639e",
+        "type": "inject",
+        "z": "1cbb4b4e35d1170d",
+        "g": "9510da9ac25b1ce7",
+        "name": "trigger on deploy",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "",
+        "topic": "",
+        "x": 150,
+        "y": 100,
+        "wires": [
+            [
+                "28caa49f7bc3f196"
+            ]
+        ]
+    },
+    {
+        "id": "e4b02c6085de5bab",
+        "type": "switch",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "ignore msg_updated",
+        "property": "originalMessage.event",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "message_updated",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 220,
+        "y": 520,
+        "wires": [
+            [],
+            [
+                "e03d3fe78cb57257"
+            ]
+        ],
+        "outputLabels": [
+            "message_updated",
+            "pass"
+        ]
+    },
+    {
+        "id": "18757833cc231bcb",
+        "type": "switch",
+        "z": "1cbb4b4e35d1170d",
+        "g": "1f4bded911132c54",
+        "name": "event switch",
+        "property": "originalMessage.event",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "conversation_status_changed",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 170,
+        "y": 820,
+        "wires": [
+            [
+                "d17e8b99e4bb8e14"
+            ]
+        ]
+    },
+    {
+        "id": "d17e8b99e4bb8e14",
+        "type": "switch",
+        "z": "1cbb4b4e35d1170d",
+        "g": "1f4bded911132c54",
+        "name": "open \\ resolved",
+        "property": "originalMessage.status",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "open",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "resolved",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 180,
+        "y": 880,
+        "wires": [
+            [],
+            [
+                "dd43c72ff37c2d7d",
+                "980a0e6183d315d5",
+                "f7c6c8b67e403fda",
+                "b10937f506128109",
+                "fe832f3cf14f2fb5"
+            ]
+        ]
+    },
+    {
+        "id": "81e3a5d53e630f79",
+        "type": "http request",
+        "z": "1cbb4b4e35d1170d",
+        "g": "b35ea57eb5d148e1",
+        "name": "",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "senderr": false,
+        "x": 370,
+        "y": 1160,
+        "wires": [
+            [
+                "a7de5969db9ee93d"
+            ]
+        ]
+    },
+    {
+        "id": "a7de5969db9ee93d",
+        "type": "debug",
+        "z": "1cbb4b4e35d1170d",
+        "g": "b35ea57eb5d148e1",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 370,
+        "y": 1120,
+        "wires": []
+    },
+    {
+        "id": "dd43c72ff37c2d7d",
+        "type": "function",
+        "z": "1cbb4b4e35d1170d",
+        "g": "b35ea57eb5d148e1",
+        "name": "set req delete agent",
+        "func": "msg.url = global.get(\"novatalksURL\") + \"/api/v1/accounts/\"\n    + global.get(\"novatalksAccountId\") + \"/conversations/\"\n    + msg.payload.chatId + \"/assignments\";\n\nmsg.payload = { \"assignee_id\": 0 };\nmsg.headers = {\n    \"api_access_token\": global.get(\"novatalksToken\") \n    };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 160,
+        "y": 1140,
+        "wires": [
+            [
+                "81e3a5d53e630f79"
+            ]
+        ]
+    },
+    {
+        "id": "980a0e6183d315d5",
+        "type": "function",
+        "z": "1cbb4b4e35d1170d",
+        "g": "b35ea57eb5d148e1",
+        "name": "set req delete team",
+        "func": "msg.url = global.get(\"novatalksURL\") + \"/api/v1/accounts/\"\n    + global.get(\"novatalksAccountId\") + \"/conversations/\"\n    + msg.payload.chatId + \"/assignments\";\n\nmsg.payload = { \"team_id\": 0 };\nmsg.headers = {\n    \"api_access_token\": global.get(\"novatalksToken\")\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 170,
+        "y": 1180,
+        "wires": [
+            [
+                "81e3a5d53e630f79"
+            ]
+        ]
+    },
+    {
+        "id": "426ae8071765f368",
+        "type": "chatbot-message",
+        "z": "1cbb4b4e35d1170d",
+        "g": "c97f49fd2965ba3f",
+        "name": "End user timeout ua",
+        "message": [
+            {
+                "message": "Ваш діалог завершено"
+            }
+        ],
+        "language": "none",
+        "x": 940,
+        "y": 900,
+        "wires": [
+            [
+                "3a553116c2b4f078"
+            ]
+        ]
+    },
+    {
+        "id": "3a553116c2b4f078",
+        "type": "chatbot-chatwoot-botagent-send",
+        "z": "1cbb4b4e35d1170d",
+        "g": "c97f49fd2965ba3f",
+        "name": "End Sender",
+        "bot": "66f0be5acb2a22b6",
+        "botProduction": "66f0be5acb2a22b6",
+        "track": false,
+        "passThrough": false,
+        "errorOutput": false,
+        "disableChangeStatus": true,
+        "outputs": 0,
+        "x": 1190,
+        "y": 1060,
+        "wires": []
+    },
+    {
+        "id": "fe832f3cf14f2fb5",
+        "type": "function",
+        "z": "1cbb4b4e35d1170d",
+        "g": "c97f49fd2965ba3f",
+        "name": "Set Close Timestamp",
+        "func": "let contextchat = msg.chat();\nlet currenttime = Date.now();\nlet lastAgentId;\ntry{\n    lastAgentId = msg.originalMessage.meta.assignee.id;\n}catch(err){\n    lastAgentId = 0;\n}\n// await contextchat.set('chatwoot-botagent_lastAgentId', lastAgentId);\n// await contextchat.set('chatwoot-botagent_currentConversationClosed_at' , currenttime);\nnode.warn(`set last agent id ${lastAgentId}`);\nawait contextchat.set('chatwoot-botagent_lastAgentId', lastAgentId);\nawait contextchat.remove('agentAssigned');\n\nnode.warn(await contextchat.all());\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 840,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "773b52dbb985a4ed",
+        "type": "chatbot-rules",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "is lang defined",
+        "rules": [
+            {
+                "type": "hasVariable",
+                "variable": "lang"
+            },
+            {
+                "type": "hasNotVariable",
+                "variable": "lang"
+            }
+        ],
+        "outputs": 2,
+        "x": 240,
+        "y": 700,
+        "wires": [
+            [
+                "19c8429630ac23f9"
+            ],
+            [
+                "cef6c38720debbb4"
+            ]
+        ],
+        "outputLabels": [
+            "yes",
+            "no"
+        ]
+    },
+    {
+        "id": "8426a9abaad046ad",
+        "type": "chatbot-rules",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "what lang",
+        "rules": [
+            {
+                "type": "isVariable",
+                "variable": "lang",
+                "value": "ua"
+            },
+            {
+                "type": "isVariable",
+                "variable": "lang",
+                "value": "ru"
+            },
+            {
+                "type": "isVariable",
+                "variable": "lang",
+                "value": "en"
+            }
+        ],
+        "outputs": 3,
+        "x": 880,
+        "y": 400,
+        "wires": [
+            [
+                "ed811e625fbdd5b2"
+            ],
+            [
+                "645290124454bf94"
+            ],
+            [
+                "2ca8191c0048a4f8"
+            ]
+        ],
+        "outputLabels": [
+            "ua",
+            "ru",
+            "en"
+        ]
+    },
+    {
+        "id": "ed811e625fbdd5b2",
+        "type": "chatbot-message",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "ua",
+        "message": [
+            {
+                "message": "Вітаю! Ви звернулись до Компанії К."
+            }
+        ],
+        "language": "none",
+        "x": 1050,
+        "y": 360,
+        "wires": [
+            [
+                "aa9e10d6a7314c31"
+            ]
+        ]
+    },
+    {
+        "id": "645290124454bf94",
+        "type": "chatbot-message",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "ru",
+        "message": [
+            {
+                "message": "Приветвуем! Вы обратились в Компанию К."
+            }
+        ],
+        "language": "none",
+        "x": 1050,
+        "y": 400,
+        "wires": [
+            [
+                "aa9e10d6a7314c31"
+            ]
+        ]
+    },
+    {
+        "id": "2ca8191c0048a4f8",
+        "type": "chatbot-message",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "en",
+        "message": [
+            {
+                "message": "Hello! Welcome to Company K."
+            }
+        ],
+        "language": "none",
+        "x": 1050,
+        "y": 440,
+        "wires": [
+            [
+                "aa9e10d6a7314c31"
+            ]
+        ]
+    },
+    {
+        "id": "aa9e10d6a7314c31",
+        "type": "chatbot-chatwoot-botagent-send",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "MiniBot Sender",
+        "bot": "66f0be5acb2a22b6",
+        "botProduction": "66f0be5acb2a22b6",
+        "track": false,
+        "passThrough": true,
+        "errorOutput": false,
+        "disableChangeStatus": false,
+        "outputs": 1,
+        "x": 1240,
+        "y": 400,
+        "wires": [
+            [
+                "fd24131ceef9b9ac",
+                "c917e3deafb1e5f8"
+            ]
+        ]
+    },
+    {
+        "id": "72da68924bbccaca",
+        "type": "chatbot-message",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "ua / en greeting",
+        "message": [
+            {
+                "message": "Вітаю! Ви звернулись до Компанії К.\nHello! Welcome to Company K."
+            }
+        ],
+        "language": "none",
+        "x": 980,
+        "y": 720,
+        "wires": [
+            [
+                "2c040f243e473129"
+            ]
+        ]
+    },
+    {
+        "id": "2c040f243e473129",
+        "type": "chatbot-chatwoot-botagent-send",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "MiniBot Sender",
+        "bot": "66f0be5acb2a22b6",
+        "botProduction": "66f0be5acb2a22b6",
+        "track": false,
+        "passThrough": true,
+        "errorOutput": false,
+        "disableChangeStatus": false,
+        "outputs": 1,
+        "x": 1160,
+        "y": 720,
+        "wires": [
+            [
+                "0883cc8ad2fb2b36",
+                "6c6992d44193db41"
+            ]
+        ]
+    },
+    {
+        "id": "e48a86e592e4e268",
+        "type": "switch",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "langRequest",
+        "property": "langRequest",
+        "propertyType": "global",
+        "rules": [
+            {
+                "t": "true"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 1530,
+        "y": 720,
+        "wires": [
+            [
+                "8798743e17ea0804"
+            ],
+            [
+                "eaf849112965b252"
+            ]
+        ]
+    },
+    {
+        "id": "0922cdad5043c644",
+        "type": "chatbot-chatwoot-botagent-send",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "MiniBot Sender",
+        "bot": "66f0be5acb2a22b6",
+        "botProduction": "66f0be5acb2a22b6",
+        "track": true,
+        "passThrough": false,
+        "errorOutput": false,
+        "disableChangeStatus": false,
+        "outputs": 1,
+        "x": 1500,
+        "y": 620,
+        "wires": [
+            [
+                "a9c414fbc2c590a7",
+                "acd3cc163dcd7179"
+            ]
+        ]
+    },
+    {
+        "id": "a9c414fbc2c590a7",
+        "type": "switch",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "is button?",
+        "property": "payload.content",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "ua",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "ru",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "en",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 4,
+        "x": 1680,
+        "y": 620,
+        "wires": [
+            [
+                "e7b3f2d8917ab483"
+            ],
+            [
+                "e7b3f2d8917ab483"
+            ],
+            [
+                "e7b3f2d8917ab483"
+            ],
+            [
+                "eaf849112965b252"
+            ]
+        ]
+    },
+    {
+        "id": "856f057521daf9bf",
+        "type": "switch",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "workingTime",
+        "property": "workingTime",
+        "propertyType": "global",
+        "rules": [
+            {
+                "t": "true"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 2450,
+        "y": 640,
+        "wires": [
+            [
+                "9f752a52f0fe9bf3"
+            ],
+            [
+                "ecb8af564f31acb3"
+            ]
+        ]
+    },
+    {
+        "id": "ecb8af564f31acb3",
+        "type": "subflow:35df3f61639c265d",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "",
+        "x": 2680,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "9f752a52f0fe9bf3",
+        "type": "subflow:7711a453e6d3c661",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "",
+        "x": 2640,
+        "y": 580,
+        "wires": [
+            [
+                "ecb8af564f31acb3"
+            ],
+            [
+                "b42ba5ec0762b7a7",
+                "f6c687b9b4a81d3e"
+            ]
+        ]
+    },
+    {
+        "id": "b42ba5ec0762b7a7",
+        "type": "chatbot-rules",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "what lang",
+        "rules": [
+            {
+                "type": "isVariable",
+                "variable": "lang",
+                "value": "ua"
+            },
+            {
+                "type": "isVariable",
+                "variable": "lang",
+                "value": "ru"
+            },
+            {
+                "type": "isVariable",
+                "variable": "lang",
+                "value": "en"
+            }
+        ],
+        "outputs": 3,
+        "x": 2850,
+        "y": 520,
+        "wires": [
+            [
+                "8af4db916d0b7b55"
+            ],
+            [
+                "792638cb607a4274"
+            ],
+            [
+                "562ac130946f989c"
+            ]
+        ],
+        "outputLabels": [
+            "ua",
+            "ru",
+            "en"
+        ]
+    },
+    {
+        "id": "8af4db916d0b7b55",
+        "type": "chatbot-message",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "ua",
+        "message": [
+            {
+                "message": "Ви звернулись у неробочий час."
+            }
+        ],
+        "language": "none",
+        "x": 3020,
+        "y": 480,
+        "wires": [
+            [
+                "e1c15e5d7984bc54"
+            ]
+        ]
+    },
+    {
+        "id": "792638cb607a4274",
+        "type": "chatbot-message",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "ru",
+        "message": [
+            {
+                "message": "Вы обратились в нерабочее время."
+            }
+        ],
+        "language": "none",
+        "x": 3020,
+        "y": 520,
+        "wires": [
+            [
+                "e1c15e5d7984bc54"
+            ]
+        ]
+    },
+    {
+        "id": "562ac130946f989c",
+        "type": "chatbot-message",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "en",
+        "message": [
+            {
+                "message": "We are not working now."
+            }
+        ],
+        "language": "none",
+        "x": 3020,
+        "y": 560,
+        "wires": [
+            [
+                "e1c15e5d7984bc54"
+            ]
+        ]
+    },
+    {
+        "id": "e1c15e5d7984bc54",
+        "type": "chatbot-chatwoot-botagent-send",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "MiniBot Sender",
+        "bot": "66f0be5acb2a22b6",
+        "botProduction": "66f0be5acb2a22b6",
+        "track": false,
+        "passThrough": true,
+        "errorOutput": false,
+        "disableChangeStatus": false,
+        "outputs": 1,
+        "x": 3170,
+        "y": 520,
+        "wires": [
+            [
+                "3efac9096f4212a7"
+            ]
+        ]
+    },
+    {
+        "id": "19c8429630ac23f9",
+        "type": "chatbot-rules",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "2nd time working time",
+        "rules": [
+            {
+                "type": "hasVariable",
+                "variable": "workingTimeTimeout"
+            },
+            {
+                "type": "catchAll"
+            }
+        ],
+        "outputs": 2,
+        "x": 620,
+        "y": 420,
+        "wires": [
+            [
+                "216ac37703ccb45b"
+            ],
+            [
+                "8426a9abaad046ad"
+            ]
+        ]
+    },
+    {
+        "id": "216ac37703ccb45b",
+        "type": "subflow:7711a453e6d3c661",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "",
+        "x": 840,
+        "y": 480,
+        "wires": [
+            [
+                "6698b09ce196c8cb"
+            ],
+            [
+                "14cba26f88ba8469"
+            ]
+        ]
+    },
+    {
+        "id": "6698b09ce196c8cb",
+        "type": "chatbot-context",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "command": "set",
+        "fieldValue": "false",
+        "fieldType": "str",
+        "fieldName": "noMatchTime",
+        "x": 1170,
+        "y": 500,
+        "wires": [
+            [
+                "8426a9abaad046ad"
+            ]
+        ]
+    },
+    {
+        "id": "fd24131ceef9b9ac",
+        "type": "change",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "clear message",
+        "rules": [
+            {
+                "t": "delete",
+                "p": "payload.type",
+                "pt": "msg"
+            },
+            {
+                "t": "delete",
+                "p": "payload.content",
+                "pt": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1420,
+        "y": 400,
+        "wires": [
+            [
+                "856f057521daf9bf"
+            ]
+        ]
+    },
+    {
+        "id": "f7c6c8b67e403fda",
+        "type": "function",
+        "z": "1cbb4b4e35d1170d",
+        "g": "c97f49fd2965ba3f",
+        "name": "",
+        "func": "let reason = global.get(`closeId:${msg.originalMessage.id}`);\nglobal.set(`closeId:${msg.originalMessage.id}`, undefined);\nswitch (reason) {\n    case \"user\" : return [msg, null, null];\n    case \"agent\": return [null, msg, null];\n    default: return [null, null, msg]\n}",
+        "outputs": 3,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 580,
+        "y": 1020,
+        "wires": [
+            [
+                "d202f4fc072d0fde"
+            ],
+            [
+                "cfaf2081c9923c90"
+            ],
+            [
+                "a7f732c4eb197256"
+            ]
+        ],
+        "outputLabels": [
+            "user timeout",
+            "agent timeout",
+            "manual"
+        ]
+    },
+    {
+        "id": "05c47caa0df3f744",
+        "type": "chatbot-message",
+        "z": "1cbb4b4e35d1170d",
+        "g": "c97f49fd2965ba3f",
+        "name": "End user timeout ru",
+        "message": [
+            {
+                "message": "Ваш диалог завершен"
+            }
+        ],
+        "language": "none",
+        "x": 930,
+        "y": 940,
+        "wires": [
+            [
+                "3a553116c2b4f078"
+            ]
+        ]
+    },
+    {
+        "id": "05f2882dbb428a2b",
+        "type": "chatbot-message",
+        "z": "1cbb4b4e35d1170d",
+        "g": "c97f49fd2965ba3f",
+        "name": "End user timeout en",
+        "message": [
+            {
+                "message": "Your dialogue is completed"
+            }
+        ],
+        "language": "none",
+        "x": 940,
+        "y": 980,
+        "wires": [
+            [
+                "3a553116c2b4f078"
+            ]
+        ]
+    },
+    {
+        "id": "d202f4fc072d0fde",
+        "type": "chatbot-rules",
+        "z": "1cbb4b4e35d1170d",
+        "g": "c97f49fd2965ba3f",
+        "name": "what lang",
+        "rules": [
+            {
+                "type": "isVariable",
+                "variable": "lang",
+                "value": "ua"
+            },
+            {
+                "type": "isVariable",
+                "variable": "lang",
+                "value": "ru"
+            },
+            {
+                "type": "isVariable",
+                "variable": "lang",
+                "value": "en"
+            },
+            {
+                "type": "catchAll"
+            }
+        ],
+        "outputs": 4,
+        "x": 740,
+        "y": 940,
+        "wires": [
+            [
+                "426ae8071765f368"
+            ],
+            [
+                "05c47caa0df3f744"
+            ],
+            [
+                "05f2882dbb428a2b"
+            ],
+            [
+                "05f2882dbb428a2b"
+            ]
+        ],
+        "outputLabels": [
+            "ua",
+            "ru",
+            "en",
+            ""
+        ]
+    },
+    {
+        "id": "198d81bc5a0b7f96",
+        "type": "chatbot-message",
+        "z": "1cbb4b4e35d1170d",
+        "g": "c97f49fd2965ba3f",
+        "name": "End agent timeout ua",
+        "message": [
+            {
+                "message": "Ваш діалог завершено"
+            }
+        ],
+        "language": "none",
+        "x": 940,
+        "y": 1020,
+        "wires": [
+            [
+                "3a553116c2b4f078"
+            ]
+        ]
+    },
+    {
+        "id": "8b6e3b2e6680e34a",
+        "type": "chatbot-message",
+        "z": "1cbb4b4e35d1170d",
+        "g": "c97f49fd2965ba3f",
+        "name": "End agent timeout ru",
+        "message": [
+            {
+                "message": "Ваш диалог завершен"
+            }
+        ],
+        "language": "none",
+        "x": 940,
+        "y": 1060,
+        "wires": [
+            [
+                "3a553116c2b4f078"
+            ]
+        ]
+    },
+    {
+        "id": "c44ccd9e05dc29f2",
+        "type": "chatbot-message",
+        "z": "1cbb4b4e35d1170d",
+        "g": "c97f49fd2965ba3f",
+        "name": "End agent timeout en",
+        "message": [
+            {
+                "message": "Your dialogue is completed"
+            }
+        ],
+        "language": "none",
+        "x": 940,
+        "y": 1100,
+        "wires": [
+            [
+                "3a553116c2b4f078"
+            ]
+        ]
+    },
+    {
+        "id": "cfaf2081c9923c90",
+        "type": "chatbot-rules",
+        "z": "1cbb4b4e35d1170d",
+        "g": "c97f49fd2965ba3f",
+        "name": "what lang",
+        "rules": [
+            {
+                "type": "isVariable",
+                "variable": "lang",
+                "value": "ua"
+            },
+            {
+                "type": "isVariable",
+                "variable": "lang",
+                "value": "ru"
+            },
+            {
+                "type": "isVariable",
+                "variable": "lang",
+                "value": "en"
+            },
+            {
+                "type": "catchAll"
+            }
+        ],
+        "outputs": 4,
+        "x": 740,
+        "y": 1060,
+        "wires": [
+            [
+                "198d81bc5a0b7f96"
+            ],
+            [
+                "8b6e3b2e6680e34a"
+            ],
+            [
+                "c44ccd9e05dc29f2"
+            ],
+            [
+                "c44ccd9e05dc29f2"
+            ]
+        ],
+        "outputLabels": [
+            "ua",
+            "ru",
+            "en",
+            ""
+        ]
+    },
+    {
+        "id": "b90c76544ad4f2f8",
+        "type": "chatbot-message",
+        "z": "1cbb4b4e35d1170d",
+        "g": "c97f49fd2965ba3f",
+        "name": "End user timeout ua",
+        "message": [
+            {
+                "message": "Ваш діалог завершено"
+            }
+        ],
+        "language": "none",
+        "x": 940,
+        "y": 1140,
+        "wires": [
+            [
+                "3a553116c2b4f078"
+            ]
+        ]
+    },
+    {
+        "id": "35fdd2fe7406aacf",
+        "type": "chatbot-message",
+        "z": "1cbb4b4e35d1170d",
+        "g": "c97f49fd2965ba3f",
+        "name": "End user timeout ru",
+        "message": [
+            {
+                "message": "Ваш диалог завершен"
+            }
+        ],
+        "language": "none",
+        "x": 950,
+        "y": 1180,
+        "wires": [
+            [
+                "3a553116c2b4f078"
+            ]
+        ]
+    },
+    {
+        "id": "a3473d2148b5e0e3",
+        "type": "chatbot-message",
+        "z": "1cbb4b4e35d1170d",
+        "g": "c97f49fd2965ba3f",
+        "name": "End user timeout en",
+        "message": [
+            {
+                "message": "Your dialogue is completed"
+            }
+        ],
+        "language": "none",
+        "x": 940,
+        "y": 1220,
+        "wires": [
+            [
+                "3a553116c2b4f078"
+            ]
+        ]
+    },
+    {
+        "id": "a7f732c4eb197256",
+        "type": "chatbot-rules",
+        "z": "1cbb4b4e35d1170d",
+        "g": "c97f49fd2965ba3f",
+        "name": "what lang",
+        "rules": [
+            {
+                "type": "isVariable",
+                "variable": "lang",
+                "value": "ua"
+            },
+            {
+                "type": "isVariable",
+                "variable": "lang",
+                "value": "ru"
+            },
+            {
+                "type": "isVariable",
+                "variable": "lang",
+                "value": "en"
+            },
+            {
+                "type": "catchAll"
+            }
+        ],
+        "outputs": 4,
+        "x": 740,
+        "y": 1180,
+        "wires": [
+            [
+                "b90c76544ad4f2f8"
+            ],
+            [
+                "35fdd2fe7406aacf"
+            ],
+            [
+                "a3473d2148b5e0e3"
+            ],
+            [
+                "a3473d2148b5e0e3"
+            ]
+        ],
+        "outputLabels": [
+            "ua",
+            "ru",
+            "en",
+            ""
+        ]
+    },
+    {
+        "id": "0883cc8ad2fb2b36",
+        "type": "change",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "clear message",
+        "rules": [
+            {
+                "t": "delete",
+                "p": "payload.type",
+                "pt": "msg"
+            },
+            {
+                "t": "delete",
+                "p": "payload.content",
+                "pt": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1360,
+        "y": 720,
+        "wires": [
+            [
+                "e48a86e592e4e268"
+            ]
+        ]
+    },
+    {
+        "id": "6291ae6def985ebc",
+        "type": "function",
+        "z": "1cbb4b4e35d1170d",
+        "g": "b35ea57eb5d148e1",
+        "name": "delete Tracking",
+        "func": "const chat = msg.chat();\nchat.remove(\n    \"chatwoot-botagent_currentConversationNode\",\n    \"chatwoot-botagent_currentConversationNode_at\"\n)\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 160,
+        "y": 1100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "20db4dc7e548e750",
+        "type": "function",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "set lang",
+        "func": "const contextchat = msg.chat();\nconst novatalksURL = global.get(\"novatalksURL\").trim();\nconst novatalksAccountId = global.get(\"novatalksAccountId\");\nconst novatalksToken = global.get(\"novatalksToken\");\nconst lang = msg.payload.content;\n\n\nmsg.url = `${novatalksURL}/api/v1/accounts/${novatalksAccountId}/contacts/${msg.originalMessage.sender.id}/attributes`;\nmsg.method = 'post';\nmsg.headers = { api_access_token: global.get(\"novatalksToken\") };\nmsg.payload = { \"custom_attributes\": { \"language\": lang } };\n\nawait contextchat.set(\"lang\", lang);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1880,
+        "y": 640,
+        "wires": [
+            [
+                "884b20454c9603e1"
+            ]
+        ]
+    },
+    {
+        "id": "bb99eeafc1a5441a",
+        "type": "function",
+        "z": "1cbb4b4e35d1170d",
+        "g": "9510da9ac25b1ce7",
+        "name": "create contact attr",
+        "func": "msg.url = `${global.get(\"novatalksURL\")}/api/v1/accounts/${global.get(\"novatalksAccountId\")}/custom_attribute_definitions`;\n\nmsg.payload = {\n    attribute_description: \"language\",\n    attribute_display_name: \"language\",\n    attribute_display_type: \"list\",\n    attribute_key: \"language\",\n    attribute_model: \"contact_attribute\",\n    attribute_values: [\"ua\", \"ru\", \"en\"]\n};\n\nmsg.headers = {\n    \"api_access_token\": global.get(\"novatalksToken\")\n};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 710,
+        "y": 60,
+        "wires": [
+            [
+                "95d4fbde2d8192ab"
+            ]
+        ]
+    },
+    {
+        "id": "95d4fbde2d8192ab",
+        "type": "http request",
+        "z": "1cbb4b4e35d1170d",
+        "g": "9510da9ac25b1ce7",
+        "name": "",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "senderr": false,
+        "x": 910,
+        "y": 60,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "416f33e0053a8060",
+        "type": "comment",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "BOT LOGIC HERE",
+        "info": "",
+        "x": 2680,
+        "y": 720,
+        "wires": []
+    },
+    {
+        "id": "3c1e2ff76780aa47",
+        "type": "comment",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "BOT LOGIC HERE (NOT WORKING TIME)",
+        "info": "",
+        "x": 3280,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "f6c687b9b4a81d3e",
+        "type": "function",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "set workingTimeTimeout",
+        "func": "const chatcontext = msg.chat();\nchatcontext.set(\"workingTimeTimeout\", Date.now());\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2960,
+        "y": 600,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "14cba26f88ba8469",
+        "type": "function",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "noWorkTimeTimeout",
+        "func": "const chatcontext = msg.chat();\nconst outtime = await chatcontext.get(\"workingTimeTimeout\");\nconst currenttime = Date.now();\nconst timeout = global.get(\"noWorkTimeTimeout\") * 60000;\nif (currenttime >= outtime + timeout) {\n    await chatcontext.remove('workingTimeTimeout')\n    return [msg, null]\n};\nreturn [null, msg];",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 980,
+        "y": 540,
+        "wires": [
+            [
+                "6698b09ce196c8cb"
+            ],
+            []
+        ],
+        "outputLabels": [
+            "timeout passed",
+            "timeout not passed"
+        ]
+    },
+    {
+        "id": "963df69bd2af4050",
+        "type": "function",
+        "z": "1cbb4b4e35d1170d",
+        "g": "c97f49fd2965ba3f",
+        "name": "Set Close Timestamp",
+        "func": "let contextchat = msg.chat();\nlet currenttime = Date.now();\nlet lastAgentId;\ntry {\n    lastAgentId = msg.originalMessage.meta.assignee.id;\n} catch (err) {\n    lastAgentId = 0;\n}\n// await contextchat.set('chatwoot-botagent_lastAgentId', lastAgentId);\n// await contextchat.set('chatwoot-botagent_currentConversationClosed_at' , currenttime);\nawait contextchat.set('chatwoot-botagent_lastAgentId', lastAgentId);\nawait contextchat.set('chatwoot-botagent_currentConversationClosed_at' , currenttime);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 880,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8798743e17ea0804",
+        "type": "chatbot-inline-buttons",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "ua / en lang req",
+        "buttons": [
+            {
+                "type": "postback",
+                "label": "Українська",
+                "value": "ua",
+                "answer": "",
+                "alert": false,
+                "style": ""
+            },
+            {
+                "type": "newline"
+            },
+            {
+                "type": "postback",
+                "label": "Русский",
+                "value": "ru",
+                "answer": "",
+                "alert": false,
+                "style": ""
+            },
+            {
+                "type": "newline"
+            },
+            {
+                "type": "postback",
+                "label": "English",
+                "value": "en",
+                "answer": "",
+                "alert": false,
+                "style": ""
+            }
+        ],
+        "message": "Оберіть вашу мову спілкування. Please, choose your language.",
+        "x": 1320,
+        "y": 620,
+        "wires": [
+            [
+                "0922cdad5043c644"
+            ]
+        ]
+    },
+    {
+        "id": "ec2c40c9efb2b654",
+        "type": "subflow:7711a453e6d3c661",
+        "z": "1cbb4b4e35d1170d",
+        "g": "028465b04404853d",
+        "name": "",
+        "x": 660,
+        "y": 200,
+        "wires": [
+            [
+                "3532458cbe8a1cb0"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "a87ba8b576b76bf3",
+        "type": "switch",
+        "z": "1cbb4b4e35d1170d",
+        "g": "028465b04404853d",
+        "name": "workingTime",
+        "property": "workingTime",
+        "propertyType": "global",
+        "rules": [
+            {
+                "t": "true"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 490,
+        "y": 200,
+        "wires": [
+            [
+                "ec2c40c9efb2b654"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "3efac9096f4212a7",
+        "type": "chatbot-chatwoot-botagent-transfer",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "",
+        "transferTarget": "team",
+        "transferTargetId": "1",
+        "assignmentAlgorithm": "none",
+        "bot": "66f0be5acb2a22b6",
+        "x": 3390,
+        "y": 520,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "9b37fd3141354f18",
+        "type": "link out",
+        "z": "1cbb4b4e35d1170d",
+        "name": "",
+        "mode": "link",
+        "links": [
+            "ec5702ccf622ee5a",
+            "9af48587510a41d9"
+        ],
+        "x": 245,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "e0edbaf3762dcd3f",
+        "type": "link out",
+        "z": "1cbb4b4e35d1170d",
+        "name": "",
+        "mode": "link",
+        "links": [
+            "3ccea50de46b2ad0",
+            "d463fa470fe71f05",
+            "4fcf27dba37072cd"
+        ],
+        "x": 285,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "1dafde566a309a96",
+        "type": "link out",
+        "z": "1cbb4b4e35d1170d",
+        "name": "",
+        "mode": "link",
+        "links": [
+            "98d55118ce920454",
+            "e1399801a2d22f68"
+        ],
+        "x": 245,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "98d55118ce920454",
+        "type": "link in",
+        "z": "1cbb4b4e35d1170d",
+        "g": "1f4bded911132c54",
+        "name": "",
+        "links": [
+            "1dafde566a309a96"
+        ],
+        "x": 65,
+        "y": 820,
+        "wires": [
+            [
+                "18757833cc231bcb",
+                "7ba445dd8e9a0fdc"
+            ]
+        ]
+    },
+    {
+        "id": "9af48587510a41d9",
+        "type": "link in",
+        "z": "1cbb4b4e35d1170d",
+        "g": "028465b04404853d",
+        "name": "",
+        "links": [
+            "9b37fd3141354f18",
+            "76fd73d8f797c86b",
+            "6c6992d44193db41",
+            "acd3cc163dcd7179",
+            "c917e3deafb1e5f8"
+        ],
+        "x": 385,
+        "y": 200,
+        "wires": [
+            [
+                "a87ba8b576b76bf3"
+            ]
+        ]
+    },
+    {
+        "id": "ec5702ccf622ee5a",
+        "type": "link in",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "",
+        "links": [
+            "9b37fd3141354f18",
+            "76fd73d8f797c86b"
+        ],
+        "x": 55,
+        "y": 520,
+        "wires": [
+            [
+                "e4b02c6085de5bab",
+                "38c1cdab2198d023"
+            ]
+        ]
+    },
+    {
+        "id": "d463fa470fe71f05",
+        "type": "link in",
+        "z": "1cbb4b4e35d1170d",
+        "g": "028465b04404853d",
+        "name": "",
+        "links": [
+            "e0edbaf3762dcd3f"
+        ],
+        "x": 645,
+        "y": 240,
+        "wires": [
+            [
+                "3532458cbe8a1cb0"
+            ]
+        ]
+    },
+    {
+        "id": "e1399801a2d22f68",
+        "type": "link in",
+        "z": "1cbb4b4e35d1170d",
+        "g": "028465b04404853d",
+        "name": "",
+        "links": [
+            "1dafde566a309a96"
+        ],
+        "x": 695,
+        "y": 260,
+        "wires": [
+            [
+                "3532458cbe8a1cb0"
+            ]
+        ]
+    },
+    {
+        "id": "7ba445dd8e9a0fdc",
+        "type": "debug",
+        "z": "1cbb4b4e35d1170d",
+        "name": "Bot Agent Events",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 390,
+        "y": 780,
+        "wires": []
+    },
+    {
+        "id": "38c1cdab2198d023",
+        "type": "debug",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "Bot Agent In",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 230,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "6c6992d44193db41",
+        "type": "link out",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "",
+        "mode": "link",
+        "links": [
+            "9af48587510a41d9"
+        ],
+        "x": 1215,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "acd3cc163dcd7179",
+        "type": "link out",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "",
+        "mode": "link",
+        "links": [
+            "9af48587510a41d9"
+        ],
+        "x": 1555,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "c917e3deafb1e5f8",
+        "type": "link out",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "",
+        "mode": "link",
+        "links": [
+            "9af48587510a41d9"
+        ],
+        "x": 1355,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "28caa49f7bc3f196",
+        "type": "change",
+        "z": "1cbb4b4e35d1170d",
+        "g": "9510da9ac25b1ce7",
+        "name": "set GLOBALS",
+        "rules": [
+            {
+                "t": "set",
+                "p": "novatalksURL",
+                "pt": "global",
+                "to": "http://prod-novatalks-v3-demo-engine:3000",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "novatalksToken",
+                "pt": "global",
+                "to": "02Xhl8iTNltinte66ekcsn",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "novatalksAccountId",
+                "pt": "global",
+                "to": "1",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "lastAgentTimeout",
+                "pt": "global",
+                "to": "3",
+                "tot": "num"
+            },
+            {
+                "t": "set",
+                "p": "noWorkTimeTimeout",
+                "pt": "global",
+                "to": "2",
+                "tot": "num"
+            },
+            {
+                "t": "set",
+                "p": "defaultLang",
+                "pt": "global",
+                "to": "ua",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "langRequest",
+                "pt": "global",
+                "to": "true",
+                "tot": "bool"
+            },
+            {
+                "t": "set",
+                "p": "workingTime",
+                "pt": "global",
+                "to": "true",
+                "tot": "bool"
+            },
+            {
+                "t": "set",
+                "p": "resolveInactive",
+                "pt": "global",
+                "to": "true",
+                "tot": "bool"
+            },
+            {
+                "t": "set",
+                "p": "newCore",
+                "pt": "global",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 500,
+        "y": 100,
+        "wires": [
+            [
+                "bb99eeafc1a5441a",
+                "d7734e084ab40405"
+            ]
+        ]
+    },
+    {
+        "id": "b10937f506128109",
+        "type": "function",
+        "z": "1cbb4b4e35d1170d",
+        "name": "delete Tracking",
+        "func": "const chat = msg.chat();\nchat.remove(\n    \"chatwoot-botagent_currentConversationNode\",\n    \"chatwoot-botagent_currentConversationNode_at\"\n)\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 140,
+        "y": 1260,
+        "wires": [
+            [
+                "d802782df615586d"
+            ]
+        ]
+    },
+    {
+        "id": "128604d9437a5d64",
+        "type": "debug",
+        "z": "1cbb4b4e35d1170d",
+        "name": "Bot Agent In start",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 250,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "d802782df615586d",
+        "type": "switch",
+        "z": "1cbb4b4e35d1170d",
+        "g": "69626c44193078da",
+        "name": "",
+        "property": "originalMessage.contact_inbox.inbox.csatSurveyEnabled",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 110,
+        "y": 1400,
+        "wires": [
+            [
+                "2aa3d68c8bdfbef6"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "3cafd17c7eaf2a81",
+        "type": "function",
+        "z": "1cbb4b4e35d1170d",
+        "g": "69626c44193078da",
+        "name": "send CSAT",
+        "func": "msg.url = `${global.get(\"novatalksURL\")}/api/v1/accounts/${global.get(\"novatalksAccountId\")}/csat`;\n// const rating = parseInt(msg.payload.content.split('-')[1]);\nconst chatContext = msg.chat();\nconst lang = await chatContext.get('lang');\nconst csatButtons = global.get('csatButtons')[lang];\nconst rating = csatButtons.find((btn) => btn.label === msg.payload.content).value;\nmsg.payload = {\n    contact_id: msg.originalMessage.sender.id,\n    conversation_id: msg.payload.chatId,\n    message_id: msg.originalMessage.id,\n    rating: parseInt(rating),\n};\n\nmsg.headers = {\n    \"api_access_token\": global.get(\"novatalksToken\")\n};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 950,
+        "y": 1320,
+        "wires": [
+            [
+                "1728f91a7941a1f8"
+            ]
+        ]
+    },
+    {
+        "id": "1728f91a7941a1f8",
+        "type": "http request",
+        "z": "1cbb4b4e35d1170d",
+        "g": "69626c44193078da",
+        "name": "",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "senderr": false,
+        "x": 1130,
+        "y": 1320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a58674412604946f",
+        "type": "chatbot-chatwoot-botagent-send",
+        "z": "1cbb4b4e35d1170d",
+        "g": "69626c44193078da",
+        "name": "MiniBot Sender",
+        "bot": "66f0be5acb2a22b6",
+        "botProduction": "66f0be5acb2a22b6",
+        "track": true,
+        "passThrough": false,
+        "errorOutput": false,
+        "disableChangeStatus": true,
+        "outputs": 1,
+        "x": 600,
+        "y": 1400,
+        "wires": [
+            [
+                "3e8e54ab97b8ed81",
+                "d2592c45fab196f0"
+            ]
+        ]
+    },
+    {
+        "id": "1b9263f00669fb1f",
+        "type": "chatbot-rules",
+        "z": "1cbb4b4e35d1170d",
+        "g": "69626c44193078da",
+        "name": "what lang",
+        "rules": [
+            {
+                "type": "isVariable",
+                "variable": "lang",
+                "value": "ua"
+            },
+            {
+                "type": "isVariable",
+                "variable": "lang",
+                "value": "ru"
+            },
+            {
+                "type": "isVariable",
+                "variable": "lang",
+                "value": "en"
+            },
+            {
+                "type": "catchAll"
+            }
+        ],
+        "outputs": 4,
+        "x": 920,
+        "y": 1540,
+        "wires": [
+            [
+                "50d01108a18f698a"
+            ],
+            [
+                "8364c5c64004f777"
+            ],
+            [
+                "dd64359383f6143b"
+            ],
+            [
+                "50d01108a18f698a"
+            ]
+        ],
+        "outputLabels": [
+            "ua",
+            "ru",
+            "en",
+            ""
+        ]
+    },
+    {
+        "id": "50d01108a18f698a",
+        "type": "chatbot-message",
+        "z": "1cbb4b4e35d1170d",
+        "g": "69626c44193078da",
+        "name": "ua thanks",
+        "message": [
+            {
+                "message": "Дякуємо!"
+            }
+        ],
+        "language": "none",
+        "x": 1080,
+        "y": 1500,
+        "wires": [
+            [
+                "4076052afd4a3303"
+            ]
+        ]
+    },
+    {
+        "id": "8364c5c64004f777",
+        "type": "chatbot-message",
+        "z": "1cbb4b4e35d1170d",
+        "g": "69626c44193078da",
+        "name": "ru thanks",
+        "message": [
+            {
+                "message": "Спасибо!"
+            }
+        ],
+        "language": "none",
+        "x": 1080,
+        "y": 1540,
+        "wires": [
+            [
+                "4076052afd4a3303"
+            ]
+        ]
+    },
+    {
+        "id": "dd64359383f6143b",
+        "type": "chatbot-message",
+        "z": "1cbb4b4e35d1170d",
+        "g": "69626c44193078da",
+        "name": "en thanks",
+        "message": [
+            {
+                "message": "Thank you!"
+            }
+        ],
+        "language": "none",
+        "x": 1080,
+        "y": 1580,
+        "wires": [
+            [
+                "4076052afd4a3303"
+            ]
+        ]
+    },
+    {
+        "id": "4076052afd4a3303",
+        "type": "chatbot-chatwoot-botagent-send",
+        "z": "1cbb4b4e35d1170d",
+        "g": "69626c44193078da",
+        "name": "MiniBot Sender",
+        "bot": "66f0be5acb2a22b6",
+        "botProduction": "66f0be5acb2a22b6",
+        "track": false,
+        "passThrough": false,
+        "errorOutput": false,
+        "disableChangeStatus": true,
+        "outputs": 0,
+        "x": 1260,
+        "y": 1500,
+        "wires": []
+    },
+    {
+        "id": "2aa3d68c8bdfbef6",
+        "type": "delay",
+        "z": "1cbb4b4e35d1170d",
+        "g": "69626c44193078da",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "1",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 240,
+        "y": 1400,
+        "wires": [
+            [
+                "53aa366f750040d7"
+            ]
+        ]
+    },
+    {
+        "id": "76fd73d8f797c86b",
+        "type": "link out",
+        "z": "1cbb4b4e35d1170d",
+        "g": "69626c44193078da",
+        "name": "",
+        "mode": "link",
+        "links": [
+            "9af48587510a41d9",
+            "ec5702ccf622ee5a"
+        ],
+        "x": 875,
+        "y": 1600,
+        "wires": []
+    },
+    {
+        "id": "3e8e54ab97b8ed81",
+        "type": "debug",
+        "z": "1cbb4b4e35d1170d",
+        "g": "69626c44193078da",
+        "name": "CSAT",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 670,
+        "y": 1360,
+        "wires": []
+    },
+    {
+        "id": "d599dd062cf46264",
+        "type": "inject",
+        "z": "1cbb4b4e35d1170d",
+        "g": "69626c44193078da",
+        "name": "trigger on deploy",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "",
+        "topic": "",
+        "x": 170,
+        "y": 1560,
+        "wires": [
+            [
+                "8dad571784362729"
+            ]
+        ]
+    },
+    {
+        "id": "8dad571784362729",
+        "type": "change",
+        "z": "1cbb4b4e35d1170d",
+        "g": "69626c44193078da",
+        "name": "csatButtons",
+        "rules": [
+            {
+                "t": "set",
+                "p": "csatButtons",
+                "pt": "global",
+                "to": "{\"ua\":[{\"value\":\"5\",\"label\":\"Відмінно 😄\"},{\"value\":\"4\",\"label\":\"Добре 😊\"},{\"value\":\"3\",\"label\":\"Задовільно 😐\"},{\"value\":\"2\",\"label\":\"Погано 😕\"},{\"value\":\"1\",\"label\":\"Дуже погано 😩\"}],\"ru\":[{\"value\":\"5\",\"label\":\"Прекрасно 😄\"},{\"value\":\"4\",\"label\":\"Хорошо 😊\"},{\"value\":\"3\",\"label\":\"Удовлетворительно 😐\"},{\"value\":\"2\",\"label\":\"Плохо 😕\"},{\"value\":\"1\",\"label\":\"Очень плохо 😩\"}],\"en\":[{\"value\":\"5\",\"label\":\"Excellent 😄\"},{\"value\":\"4\",\"label\":\"Good 😊\"},{\"value\":\"3\",\"label\":\"So-so 😐\"},{\"value\":\"2\",\"label\":\"Bad 😕\"},{\"value\":\"1\",\"label\":\"Very bad 😩\"}]}",
+                "tot": "json"
+            },
+            {
+                "t": "set",
+                "p": "csatMessages",
+                "pt": "global",
+                "to": "{\"ua\":\"Будь ласка, оцініть вашу розмову\",\"ru\":\"Пожалуйста, оцените ваш разговор\",\"en\":\"Please, rate your conversation\"}",
+                "tot": "json"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 390,
+        "y": 1560,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "53aa366f750040d7",
+        "type": "function",
+        "z": "1cbb4b4e35d1170d",
+        "g": "69626c44193078da",
+        "name": "CSAT buider",
+        "func": "const transport = msg.originalMessage.additional_attributes.contactSource;\nlet buttonPaylaod = [];\nlet type;\nconst csatButtons = global.get('csatButtons');\nconst csatMessages = global.get('csatMessages');\nconst chatContext = msg.chat();\nconst lang = await chatContext.get('lang');\nconst buttons = csatButtons[lang];\nconst message = csatMessages[lang];\nswitch(transport){\n    case 'telegram':\n    case 'viber': {\n        type = 'buttons';\n        buttonPaylaod = buttons.map((btn) => {\n            return {\n                type: 'keyboardButton',\n                bgColor: '#99ccff',\n                silent: 'false',\n                textVAlign: 'middle',\n                textHAlign: 'center',\n                textOpacity: '100',\n                textSize: 'regular',\n                label: btn.label,\n                value: btn.label\n            }\n        });\n        buttonPaylaod.splice(1, 0, { type: 'newline' });\n        buttonPaylaod.splice(4, 0, { type: 'newline' });\n        break;\n    }\n    case 'messenger': {\n        type = 'quick-replies',\n        buttonPaylaod = buttons.map((btn) => {\n            return {\n                type: 'quick-reply',\n                label: btn.label,\n                value: btn.label\n            }\n        })\n    }\n}\nmsg.payload = {...msg.payload, type, buttons: buttonPaylaod, content: message};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 1400,
+        "wires": [
+            [
+                "a58674412604946f"
+            ]
+        ]
+    },
+    {
+        "id": "d2592c45fab196f0",
+        "type": "function",
+        "z": "1cbb4b4e35d1170d",
+        "g": "69626c44193078da",
+        "name": "CSAT check",
+        "func": "const message = msg.payload.content;\nconst csatButtons = global.get('csatButtons');\nlet availablePrompts = [];\nfor (let [key, value] of Object.entries(csatButtons)){\n    for (let btn of value){\n        availablePrompts.push(btn.label);\n    }\n}\nif (availablePrompts.some(substring => message.includes(substring))){\n    return [msg, null]\n}\nreturn [null, msg];",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 750,
+        "y": 1480,
+        "wires": [
+            [
+                "1b9263f00669fb1f",
+                "3cafd17c7eaf2a81",
+                "67d8b5d771578fb7"
+            ],
+            [
+                "76fd73d8f797c86b"
+            ]
+        ],
+        "outputLabels": [
+            "CSAT",
+            "ELSE"
+        ]
+    },
+    {
+        "id": "e03d3fe78cb57257",
+        "type": "function",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "CSAT check",
+        "func": "const message = msg.payload.content;\nconst csatButtons = global.get('csatButtons');\nlet availablePrompts = [];\nfor (let [key, value] of Object.entries(csatButtons)){\n    for (let btn of value){\n        availablePrompts.push(btn.label);\n    }\n}\nif (availablePrompts.some(substring => message.includes(substring))){\n    return [msg, null]\n}\nreturn [null, msg];",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 210,
+        "y": 580,
+        "wires": [
+            [],
+            [
+                "ce3d0b65b705c0ac"
+            ]
+        ],
+        "outputLabels": [
+            "CSAT",
+            "ELSE"
+        ]
+    },
+    {
+        "id": "d2948cff5fd6f6bd",
+        "type": "change",
+        "z": "1cbb4b4e35d1170d",
+        "g": "69626c44193078da",
+        "name": "disableChangeStatus",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload.disableChangeStatus",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1240,
+        "y": 1660,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "aecdab88e8261aa6",
+        "type": "function",
+        "z": "1cbb4b4e35d1170d",
+        "g": "69626c44193078da",
+        "name": "CSAT check",
+        "func": "const message = msg.payload.content;\nconst csatButtons = global.get('csatButtons');\nlet availablePrompts = [];\nfor (let [key, value] of Object.entries(csatButtons)){\n    for (let btn of value){\n        availablePrompts.push(btn.label);\n    }\n}\nif (availablePrompts.some(substring => message.includes(substring))){\n    return [msg, null]\n}\nreturn [null, msg];",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1030,
+        "y": 1700,
+        "wires": [
+            [
+                "d2948cff5fd6f6bd"
+            ],
+            []
+        ],
+        "outputLabels": [
+            "CSAT",
+            "ELSE"
+        ]
+    },
+    {
+        "id": "8943ed2fd0346c28",
+        "type": "comment",
+        "z": "1cbb4b4e35d1170d",
+        "g": "69626c44193078da",
+        "name": "between throtle and NovaTalks In",
+        "info": "",
+        "x": 1210,
+        "y": 1620,
+        "wires": []
+    },
+    {
+        "id": "f853fbe6f8af234a",
+        "type": "function",
+        "z": "1cbb4b4e35d1170d",
+        "g": "69626c44193078da",
+        "name": "CSAT check",
+        "func": "const message = msg.payload.content;\nconst csatButtons = global.get('csatButtons');\nlet availablePrompts = [];\nfor (let [key, value] of Object.entries(csatButtons)){\n    for (let btn of value){\n        availablePrompts.push(btn.label);\n    }\n}\nif (availablePrompts.some(substring => message.includes(substring))){\n    return [msg, null]\n}\nreturn [null, msg];",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 590,
+        "y": 1700,
+        "wires": [
+            [],
+            []
+        ],
+        "outputLabels": [
+            "CSAT",
+            "ELSE"
+        ]
+    },
+    {
+        "id": "3a8183e8947994e3",
+        "type": "comment",
+        "z": "1cbb4b4e35d1170d",
+        "g": "69626c44193078da",
+        "name": "between ignore msg_update and isTransfered",
+        "info": "",
+        "x": 690,
+        "y": 1640,
+        "wires": []
+    },
+    {
+        "id": "d7734e084ab40405",
+        "type": "function",
+        "z": "1cbb4b4e35d1170d",
+        "g": "9510da9ac25b1ce7",
+        "name": "set labels",
+        "func": "const novatalksURL = global.get(\"novatalksURL\").trim();\nconst novatalksAccountId = global.get(\"novatalksAccountId\");\nconst novatalksToken = global.get(\"novatalksToken\");\nmsg.url = `${novatalksURL}/api/v1/accounts/${novatalksAccountId}/labels`;\nmsg.headers = {\n    api_access_token: global.get(\"novatalksToken\"),\n};\n\nconst labelsData = [\n    { color: \"#FF0000\", description: \"CSAT rating 1\", title: \"csat_1\", show_on_sidebar: true },\n    { color: \"#FF8200\", description: \"CSAT rating 2\", title: \"csat_2\", show_on_sidebar: true },\n    { color: \"#FFF500\", description: \"CSAT rating 3\", title: \"csat_3\", show_on_sidebar: true },\n    { color: \"#C5FF00\", description: \"CSAT rating 4\", title: \"csat_4\", show_on_sidebar: true },\n    { color: \"#65FF00\", description: \"CSAT rating 5\", title: \"csat_5\", show_on_sidebar: true },\n]\nconst msgArray = [];\nfor(let label of labelsData) {\n    msgArray.push({\n        ...msg,\n        payload: label\n    })\n}\n\nreturn [msgArray];",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 700,
+        "y": 100,
+        "wires": [
+            [
+                "95d4fbde2d8192ab"
+            ]
+        ]
+    },
+    {
+        "id": "67d8b5d771578fb7",
+        "type": "function",
+        "z": "1cbb4b4e35d1170d",
+        "g": "69626c44193078da",
+        "name": "get current labels",
+        "func": "const novatalksURL = global.get(\"novatalksURL\").trim();\n// const novatalksURL = \"https://novatalks-dev.k3s.test.novait.com.ua\"\nconst novatalksAccountId = global.get(\"novatalksAccountId\");\nconst novatalksToken = global.get(\"novatalksToken\");\nmsg.url = `${novatalksURL}/api/v1/accounts/${novatalksAccountId}/conversations/${msg.payload.chatId}/labels`;\nmsg.headers = { api_access_token: novatalksToken };\nmsg.method = 'get';\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 970,
+        "y": 1400,
+        "wires": [
+            [
+                "8839e513cf05785e"
+            ]
+        ]
+    },
+    {
+        "id": "8839e513cf05785e",
+        "type": "http request",
+        "z": "1cbb4b4e35d1170d",
+        "g": "69626c44193078da",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "senderr": false,
+        "x": 1150,
+        "y": 1400,
+        "wires": [
+            [
+                "2406f284158a7b09"
+            ]
+        ]
+    },
+    {
+        "id": "2406f284158a7b09",
+        "type": "function",
+        "z": "1cbb4b4e35d1170d",
+        "g": "69626c44193078da",
+        "name": "delete csat_ labels",
+        "func": "const labels = msg.payload.payload;\nconst novatalksToken = global.get(\"novatalksToken\");\nconst labelsToDelete = labels.filter((elem) => {\n    if (elem.includes('csat_')) return true;\n    return false;\n});\nif (labelsToDelete.length !== 0) {\n    msg.payload = { labels: labelsToDelete };\n    msg.url += '/delete';\n    msg.method = 'post';\n    msg.headers = { api_access_token: novatalksToken };\n    return msg;\n} else {\n    return null;\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1330,
+        "y": 1360,
+        "wires": [
+            [
+                "3a5f47143010d27e"
+            ]
+        ]
+    },
+    {
+        "id": "3a5f47143010d27e",
+        "type": "http request",
+        "z": "1cbb4b4e35d1170d",
+        "g": "69626c44193078da",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "senderr": false,
+        "x": 1450,
+        "y": 1400,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8f7303821a4f9294",
+        "type": "function",
+        "z": "1cbb4b4e35d1170d",
+        "g": "69626c44193078da",
+        "name": "set csat label",
+        "func": "const chatContext = msg.chat();\nconst lang = await chatContext.get('lang');\nconst csatButtons = global.get('csatButtons')[lang];\nconst rating = csatButtons.find((btn) => btn.label === msg.payload.content).value;\nconst setCsat = 'csat_' + rating;\nconst novatalksURL = global.get(\"novatalksURL\").trim();\nconst novatalksAccountId = global.get(\"novatalksAccountId\");\nconst novatalksToken = global.get(\"novatalksToken\");\nmsg.url = `${novatalksURL}/api/v1/accounts/${novatalksAccountId}/conversations/${msg.payload.chatId}/labels`;\nmsg.method = 'post';\nmsg.payload = { labels: [setCsat] };\nmsg.headers = { api_access_token: novatalksToken };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1290,
+        "y": 1440,
+        "wires": [
+            [
+                "3a5f47143010d27e"
+            ]
+        ]
+    },
+    {
+        "id": "736d6f405bd561f0",
+        "type": "complete",
+        "z": "1cbb4b4e35d1170d",
+        "g": "69626c44193078da",
+        "name": "",
+        "scope": [
+            "67d8b5d771578fb7"
+        ],
+        "uncaught": false,
+        "x": 1130,
+        "y": 1440,
+        "wires": [
+            [
+                "8f7303821a4f9294"
+            ]
+        ]
+    },
+    {
+        "id": "cef6c38720debbb4",
+        "type": "chatbot-push-message",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "x": 480,
+        "y": 660,
+        "wires": [
+            [
+                "8482294161951eb9"
+            ]
+        ]
+    },
+    {
+        "id": "8482294161951eb9",
+        "type": "function",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "get lang",
+        "func": "const contextchat = msg.chat();\nconst novatalksURL = global.get(\"novatalksURL\").trim();\nconst novatalksAccountId = global.get(\"novatalksAccountId\");\nconst novatalksToken = global.get(\"novatalksToken\");\n\nmsg.url = `${novatalksURL}/api/v1/accounts/${novatalksAccountId}/contacts/${msg.originalMessage.sender.id}`;\nmsg.headers = { api_access_token: global.get(\"novatalksToken\") };\nmsg.method = 'get';\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 700,
+        "wires": [
+            [
+                "b8836b23e457c98f"
+            ]
+        ]
+    },
+    {
+        "id": "b8836b23e457c98f",
+        "type": "http request",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "senderr": false,
+        "x": 630,
+        "y": 700,
+        "wires": [
+            [
+                "dae9302e73054686"
+            ]
+        ]
+    },
+    {
+        "id": "dae9302e73054686",
+        "type": "switch",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "",
+        "property": "payload.custom_attributes.language",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "nempty"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 2,
+        "x": 770,
+        "y": 700,
+        "wires": [
+            [
+                "904824bf538cc243"
+            ],
+            [
+                "7da65b11832fe70c"
+            ]
+        ]
+    },
+    {
+        "id": "ddd47d059eceb096",
+        "type": "chatbot-pop-message",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "x": 580,
+        "y": 520,
+        "wires": [
+            [
+                "19c8429630ac23f9"
+            ]
+        ]
+    },
+    {
+        "id": "7da65b11832fe70c",
+        "type": "chatbot-pop-message",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "x": 980,
+        "y": 680,
+        "wires": [
+            [
+                "72da68924bbccaca"
+            ]
+        ]
+    },
+    {
+        "id": "904824bf538cc243",
+        "type": "function",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "set context",
+        "func": "const contextChat = msg.chat();\ncontextChat.set('lang', msg.payload.custom_attributes.language)\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 590,
+        "y": 560,
+        "wires": [
+            [
+                "ddd47d059eceb096"
+            ]
+        ]
+    },
+    {
+        "id": "e7b3f2d8917ab483",
+        "type": "chatbot-push-message",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "x": 1860,
+        "y": 600,
+        "wires": [
+            [
+                "20db4dc7e548e750"
+            ]
+        ]
+    },
+    {
+        "id": "d1049ba01270977b",
+        "type": "chatbot-pop-message",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "x": 2220,
+        "y": 640,
+        "wires": [
+            [
+                "856f057521daf9bf"
+            ]
+        ]
+    },
+    {
+        "id": "884b20454c9603e1",
+        "type": "http request",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "senderr": false,
+        "x": 2030,
+        "y": 640,
+        "wires": [
+            [
+                "d1049ba01270977b"
+            ]
+        ]
+    },
+    {
+        "id": "eaf849112965b252",
+        "type": "chatbot-push-message",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "x": 1820,
+        "y": 680,
+        "wires": [
+            [
+                "2024239e8228dcfc"
+            ]
+        ]
+    },
+    {
+        "id": "2024239e8228dcfc",
+        "type": "function",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "set default lang",
+        "func": "const contextchat = msg.chat();\nconst novatalksURL = global.get(\"novatalksURL\").trim();\nconst novatalksAccountId = global.get(\"novatalksAccountId\");\nconst novatalksToken = global.get(\"novatalksToken\");\nconst defaultLang = global.get(\"defaultLang\");\n\n\nmsg.url = `${novatalksURL}/api/v1/accounts/${novatalksAccountId}/contacts/${msg.originalMessage.sender.id}/attributes`;\nmsg.method = 'post';\nmsg.headers = { api_access_token: global.get(\"novatalksToken\") };\nmsg.payload = { \"custom_attributes\": { \"language\": defaultLang } };\n\nawait contextchat.set(\"lang\", defaultLang);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1860,
+        "y": 720,
+        "wires": [
+            [
+                "f7b6dac89680a8be"
+            ]
+        ]
+    },
+    {
+        "id": "f7b6dac89680a8be",
+        "type": "http request",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "senderr": false,
+        "x": 2030,
+        "y": 720,
+        "wires": [
+            [
+                "761bb7718daa4e1c"
+            ]
+        ]
+    },
+    {
+        "id": "761bb7718daa4e1c",
+        "type": "chatbot-pop-message",
+        "z": "1cbb4b4e35d1170d",
+        "g": "41b1fcc7d0f4756f",
+        "x": 2200,
+        "y": 720,
+        "wires": [
+            [
+                "856f057521daf9bf"
+            ]
+        ]
+    },
+    {
+        "id": "66f0be5acb2a22b6",
+        "type": "chatbot-chatwoot-botagent-node",
+        "botname": "BotAgent_1",
+        "chatWootUrl": "http://prod-novatalks-v3-demo-engine:3000",
+        "accountId": "1",
+        "webHook": "http://prod-novatalks-v3-demo-botflow:1880/redbot/chatwoot-botagent/novatalks-botagent/1",
+        "requestTimeout": "3000",
+        "store": "ff6baf607c0b5bc0",
+        "debug": true
+    },
+    {
+        "id": "ff6baf607c0b5bc0",
+        "type": "chatbot-context-store",
+        "name": "Redis_0",
+        "contextStorage": "redis",
+        "contextParams": "{\"port\":6379,\"host\":\"prod-novatalks-v3-demo-redis\",\"db\":0}"
+    }
+]

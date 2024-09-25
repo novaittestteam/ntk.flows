@@ -1,0 +1,397 @@
+[
+    {
+        "id": "010d11fc80eaa0ff",
+        "type": "group",
+        "z": "d9f56aa9b6c8f4aa",
+        "name": "isContact write first",
+        "style": {
+            "stroke": "#ffC000",
+            "label": true,
+            "label-position": "n",
+            "color": "#0070c0"
+        },
+        "nodes": [
+            "611956cf651d3f16",
+            "a15a438a8368947c",
+            "f68dbb6bf7e954d6",
+            "7d5a63859f55e21f",
+            "1aca38243cd02bf3",
+            "dc7651968edf8198",
+            "ccd380d82eec1ec6",
+            "c4a84aa9c34bc823",
+            "b123b0e4b1b91fa9",
+            "5ebebe7ef3192f28",
+            "f1f1e8249e8c5941",
+            "0af6985c5c22e844",
+            "da78cb968ada129b",
+            "0c10e265d97f7eeb",
+            "366976273dbaf1cf",
+            "0c56a7bd6ad652a2"
+        ],
+        "x": 1174,
+        "y": 239,
+        "w": 1572,
+        "h": 222
+    },
+    {
+        "id": "611956cf651d3f16",
+        "type": "http in",
+        "z": "d9f56aa9b6c8f4aa",
+        "g": "010d11fc80eaa0ff",
+        "name": "",
+        "url": "/redbot/contact-check",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 1320,
+        "y": 360,
+        "wires": [
+            [
+                "1aca38243cd02bf3"
+            ]
+        ]
+    },
+    {
+        "id": "a15a438a8368947c",
+        "type": "http request",
+        "z": "d9f56aa9b6c8f4aa",
+        "g": "010d11fc80eaa0ff",
+        "name": "check telegram",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 2160,
+        "y": 280,
+        "wires": [
+            [
+                "da78cb968ada129b"
+            ]
+        ]
+    },
+    {
+        "id": "f68dbb6bf7e954d6",
+        "type": "http request",
+        "z": "d9f56aa9b6c8f4aa",
+        "g": "010d11fc80eaa0ff",
+        "name": "check whatsapp",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 2160,
+        "y": 320,
+        "wires": [
+            [
+                "0c10e265d97f7eeb"
+            ]
+        ]
+    },
+    {
+        "id": "7d5a63859f55e21f",
+        "type": "http response",
+        "z": "d9f56aa9b6c8f4aa",
+        "g": "010d11fc80eaa0ff",
+        "name": "",
+        "statusCode": "400",
+        "headers": {},
+        "x": 2160,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "1aca38243cd02bf3",
+        "type": "function",
+        "z": "d9f56aa9b6c8f4aa",
+        "g": "010d11fc80eaa0ff",
+        "name": "validate request",
+        "func": "const payload = msg.payload;\nif (!payload.contact || !payload.source) {\n    return [null, msg];\n}\nmsg.source = payload.source;\nmsg.contact = payload.contact;\nreturn [msg, null];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1540,
+        "y": 360,
+        "wires": [
+            [
+                "dc7651968edf8198"
+            ],
+            [
+                "0af6985c5c22e844"
+            ]
+        ]
+    },
+    {
+        "id": "dc7651968edf8198",
+        "type": "switch",
+        "z": "d9f56aa9b6c8f4aa",
+        "g": "010d11fc80eaa0ff",
+        "name": "switch source",
+        "property": "payload.source",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "cont",
+                "v": "telegram",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "whatsapp-web-api",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "whatsapp-business",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 4,
+        "x": 1740,
+        "y": 320,
+        "wires": [
+            [
+                "c4a84aa9c34bc823"
+            ],
+            [
+                "b123b0e4b1b91fa9"
+            ],
+            [
+                "0c56a7bd6ad652a2"
+            ],
+            [
+                "0af6985c5c22e844"
+            ]
+        ]
+    },
+    {
+        "id": "ccd380d82eec1ec6",
+        "type": "http response",
+        "z": "d9f56aa9b6c8f4aa",
+        "g": "010d11fc80eaa0ff",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 2670,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "c4a84aa9c34bc823",
+        "type": "function",
+        "z": "d9f56aa9b6c8f4aa",
+        "g": "010d11fc80eaa0ff",
+        "name": "inject payload",
+        "func": "msg.method = 'post';\nmsg.url = 'http://ntk-ua-novait-botflow:1880/redbot/telegram-client-api/search/channel/TG380671856419';\nmsg.payload = {\n    contact: msg.contact\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1980,
+        "y": 280,
+        "wires": [
+            [
+                "a15a438a8368947c"
+            ]
+        ]
+    },
+    {
+        "id": "b123b0e4b1b91fa9",
+        "type": "function",
+        "z": "d9f56aa9b6c8f4aa",
+        "g": "010d11fc80eaa0ff",
+        "name": "inject payload",
+        "func": "msg.method = 'post';\nmsg.url = 'http://ntk-ua-novait-botflow:1880/redbot/whatsapp-web-api/search/channel/WA380671856419';\nmsg.payload = {\n    contact: msg.contact,\n    \n};\nmsg.contact = msg.contact;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1980,
+        "y": 320,
+        "wires": [
+            [
+                "f68dbb6bf7e954d6"
+            ]
+        ]
+    },
+    {
+        "id": "5ebebe7ef3192f28",
+        "type": "http in",
+        "z": "d9f56aa9b6c8f4aa",
+        "g": "010d11fc80eaa0ff",
+        "name": "",
+        "url": "/redbot/contact-check",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 1320,
+        "y": 420,
+        "wires": [
+            [
+                "f1f1e8249e8c5941"
+            ]
+        ]
+    },
+    {
+        "id": "f1f1e8249e8c5941",
+        "type": "function",
+        "z": "d9f56aa9b6c8f4aa",
+        "g": "010d11fc80eaa0ff",
+        "name": "validate request",
+        "func": "const payload = msg.payload;\nif (!payload.contact || !payload.source) {\n    return [null, msg];\n}\nmsg.source = payload.source;\nmsg.contact = payload.contact;\nreturn [msg, null];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1540,
+        "y": 420,
+        "wires": [
+            [
+                "dc7651968edf8198"
+            ],
+            [
+                "0af6985c5c22e844"
+            ]
+        ]
+    },
+    {
+        "id": "0af6985c5c22e844",
+        "type": "function",
+        "z": "d9f56aa9b6c8f4aa",
+        "g": "010d11fc80eaa0ff",
+        "name": "set response body",
+        "func": "msg.payload = 'Bad Request';\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1990,
+        "y": 420,
+        "wires": [
+            [
+                "7d5a63859f55e21f"
+            ]
+        ]
+    },
+    {
+        "id": "da78cb968ada129b",
+        "type": "function",
+        "z": "d9f56aa9b6c8f4aa",
+        "g": "010d11fc80eaa0ff",
+        "name": "inject payload",
+        "func": "const payload = msg.payload;\nif (msg.statusCode != 200 ) {\n    return [null, msg];\n}\nmsg.statusCode = 200;\nif (!payload || !payload.message) {\n    return [null, msg];\n}\nmsg.payload = {\n    id: payload.data.id\n};\nreturn [msg, null];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2380,
+        "y": 280,
+        "wires": [
+            [
+                "ccd380d82eec1ec6"
+            ],
+            [
+                "366976273dbaf1cf"
+            ]
+        ]
+    },
+    {
+        "id": "0c10e265d97f7eeb",
+        "type": "function",
+        "z": "d9f56aa9b6c8f4aa",
+        "g": "010d11fc80eaa0ff",
+        "name": "inject payload",
+        "func": "const payload = msg.payload;\nif (msg.statusCode != 200 ) {\n    return [null, msg];\n}\nmsg.statusCode = 200;\nif (!payload || !payload.result) {\n    return [null, msg];\n}\nmsg.payload = {\n    id: msg.contact\n};\nreturn [msg, null];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2380,
+        "y": 320,
+        "wires": [
+            [
+                "ccd380d82eec1ec6"
+            ],
+            [
+                "366976273dbaf1cf"
+            ]
+        ]
+    },
+    {
+        "id": "366976273dbaf1cf",
+        "type": "switch",
+        "z": "d9f56aa9b6c8f4aa",
+        "g": "010d11fc80eaa0ff",
+        "name": "",
+        "property": "statusCode",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "404",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 2590,
+        "y": 380,
+        "wires": [
+            [
+                "ccd380d82eec1ec6"
+            ],
+            [
+                "0af6985c5c22e844"
+            ]
+        ]
+    },
+    {
+        "id": "0c56a7bd6ad652a2",
+        "type": "http response",
+        "z": "d9f56aa9b6c8f4aa",
+        "g": "010d11fc80eaa0ff",
+        "name": "",
+        "statusCode": "200",
+        "headers": {},
+        "x": 1980,
+        "y": 360,
+        "wires": []
+    }
+]

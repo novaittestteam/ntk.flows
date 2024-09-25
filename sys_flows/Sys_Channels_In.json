@@ -1,0 +1,400 @@
+[
+    {
+        "id": "8b7fc2e86d53956a",
+        "type": "tab",
+        "label": "Sys_Channels_In",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "3ee8655d43039b1a",
+        "type": "chatbot-chatwoot-connector-in",
+        "z": "8b7fc2e86d53956a",
+        "name": "",
+        "integration": "ff22f6f63cd57aae",
+        "integrationProduction": "ff22f6f63cd57aae",
+        "x": 695,
+        "y": 400,
+        "wires": [],
+        "l": false
+    },
+    {
+        "id": "4322477382d0d0b4",
+        "type": "chatbot-telegram-receive",
+        "z": "8b7fc2e86d53956a",
+        "name": "",
+        "bot": "282d6e8750a6145b",
+        "botProduction": "282d6e8750a6145b",
+        "x": 130,
+        "y": 200,
+        "wires": [
+            [
+                "28eb87c3fb3b2d76",
+                "4c9bf768b7a235c9"
+            ]
+        ]
+    },
+    {
+        "id": "1fe77d19e6a8f720",
+        "type": "chatbot-viber-receive",
+        "z": "8b7fc2e86d53956a",
+        "name": "",
+        "bot": "e08241ed44737b4b",
+        "botProduction": "e08241ed44737b4b",
+        "x": 120,
+        "y": 380,
+        "wires": [
+            [
+                "9750f368a8904338",
+                "4c9bf768b7a235c9"
+            ]
+        ]
+    },
+    {
+        "id": "28eb87c3fb3b2d76",
+        "type": "debug",
+        "z": "8b7fc2e86d53956a",
+        "name": "Telegram In Debug",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 150,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "9750f368a8904338",
+        "type": "debug",
+        "z": "8b7fc2e86d53956a",
+        "name": "Viber In Debug",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 120,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "05f763a3894c5b75",
+        "type": "chatbot-messenger-receive",
+        "z": "8b7fc2e86d53956a",
+        "name": "",
+        "bot": "2d242dfe69601191",
+        "botProduction": "2d242dfe69601191",
+        "x": 130,
+        "y": 600,
+        "wires": [
+            [
+                "0a68ec95238718af",
+                "2b8a13d90d9a5829"
+            ]
+        ]
+    },
+    {
+        "id": "0a68ec95238718af",
+        "type": "debug",
+        "z": "8b7fc2e86d53956a",
+        "name": "Messenger In Debug",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 160,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "4c9bf768b7a235c9",
+        "type": "chatbot-redis-queue",
+        "z": "8b7fc2e86d53956a",
+        "name": "Redis Q",
+        "queueSelect": "originalMessage.chatId",
+        "controlFlag": "control",
+        "removeOnFailQuantity": 10,
+        "removeOnFailTimeout": 3600,
+        "redisConfig": "686adea6395985f8",
+        "debug": false,
+        "x": 540,
+        "y": 400,
+        "wires": [
+            [
+                "3ee8655d43039b1a"
+            ],
+            [
+                "56d121fd3d0d5c97"
+            ]
+        ]
+    },
+    {
+        "id": "3536721c6cd147a5",
+        "type": "inject",
+        "z": "8b7fc2e86d53956a",
+        "name": "q status",
+        "props": [
+            {
+                "p": "control",
+                "v": "status",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 450,
+        "y": 260,
+        "wires": [
+            [
+                "4c9bf768b7a235c9"
+            ]
+        ]
+    },
+    {
+        "id": "56d121fd3d0d5c97",
+        "type": "debug",
+        "z": "8b7fc2e86d53956a",
+        "name": "q",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 550,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "b9a3edf0e7f420e2",
+        "type": "complete",
+        "z": "8b7fc2e86d53956a",
+        "name": "",
+        "scope": [
+            "3ee8655d43039b1a"
+        ],
+        "uncaught": false,
+        "x": 480,
+        "y": 300,
+        "wires": [
+            [
+                "a4df22b8d714416c"
+            ]
+        ]
+    },
+    {
+        "id": "10bb6b140ac75c07",
+        "type": "catch",
+        "z": "8b7fc2e86d53956a",
+        "name": "",
+        "scope": [
+            "3ee8655d43039b1a"
+        ],
+        "uncaught": false,
+        "x": 460,
+        "y": 340,
+        "wires": [
+            [
+                "7ac131de11bc3036"
+            ]
+        ]
+    },
+    {
+        "id": "a4df22b8d714416c",
+        "type": "change",
+        "z": "8b7fc2e86d53956a",
+        "name": "complete",
+        "rules": [
+            {
+                "t": "set",
+                "p": "control",
+                "pt": "msg",
+                "to": "job.complete",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 640,
+        "y": 300,
+        "wires": [
+            [
+                "4c9bf768b7a235c9"
+            ]
+        ]
+    },
+    {
+        "id": "7ac131de11bc3036",
+        "type": "change",
+        "z": "8b7fc2e86d53956a",
+        "name": "fail",
+        "rules": [
+            {
+                "t": "set",
+                "p": "control",
+                "pt": "msg",
+                "to": "job.fail",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 630,
+        "y": 340,
+        "wires": [
+            [
+                "4c9bf768b7a235c9"
+            ]
+        ]
+    },
+    {
+        "id": "2b8a13d90d9a5829",
+        "type": "function",
+        "z": "8b7fc2e86d53956a",
+        "name": "payload isArray ?",
+        "func": "if (Array.isArray(msg.payload)) {\n    let items = [];\n    for (const item of msg.payload) {\n        \n        let newMsg = {\n            ...msg,\n            payload: item\n        };\n        items.push(newMsg)\n        \n    }\n    return [items];\n} else {\n    \n    return msg;\n}\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 580,
+        "wires": [
+            [
+                "4c9bf768b7a235c9"
+            ]
+        ]
+    },
+    {
+        "id": "b54cc9ef4dd9bf3e",
+        "type": "comment",
+        "z": "8b7fc2e86d53956a",
+        "name": "if you use inst or wa need use this function",
+        "info": "",
+        "x": 460,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "ff22f6f63cd57aae",
+        "type": "chatbot-chatwoot-connector-node",
+        "name": "Novatalks Core",
+        "chatwootUrl": "http://ntk-ua-presentation-engine:3000",
+        "insecureAccessToken": "",
+        "timeout": "3000",
+        "accountId": "1",
+        "inboxId": "1",
+        "contactEmailTemplate": "{{payload.chatId}}@{{payload.transport}}",
+        "contactNameTemplate": "{{payload.username}}",
+        "contactIdTemplate": "{{payload.conversationId}}",
+        "phoneNumberTemplate": "",
+        "additionalAttributes": [
+            {
+                "name": "contactSource",
+                "value": "{{payload.transport}}"
+            }
+        ],
+        "maxRetryAttempts": "5",
+        "isRetryEnabled": false,
+        "insecure": false,
+        "debug": true
+    },
+    {
+        "id": "282d6e8750a6145b",
+        "type": "chatbot-telegram-node",
+        "botname": "NTK_V3_Demo",
+        "usernames": "",
+        "providerToken": "",
+        "insecureToken": "",
+        "polling": "1000",
+        "store": "ff6baf607c0b5bc0",
+        "log": "",
+        "insecure": false,
+        "debug": true,
+        "track": false,
+        "apiRequestsEnabled": true,
+        "markdownEnabled": false,
+        "webHook": "https://presentation.cloud.novatalks.com.ua/redbot/telegram/channel-telegram/1",
+        "connectMode": "webHook"
+    },
+    {
+        "id": "e08241ed44737b4b",
+        "type": "chatbot-viber-node",
+        "botname": "NovatalksV3DemoBot",
+        "insecureToken": "",
+        "usernames": "",
+        "webHook": "https://presentation.cloud.novatalks.com.ua/redbot/viber/channel-viber/1",
+        "store": "ff6baf607c0b5bc0",
+        "log": "",
+        "insecure": false,
+        "apiRequestsEnabled": true,
+        "debug": true,
+        "track": false
+    },
+    {
+        "id": "2d242dfe69601191",
+        "type": "chatbot-messenger-node",
+        "botname": "1",
+        "insecureToken": "",
+        "insecureVerifyToken": "",
+        "insecureAppSecret": "",
+        "usernames": "",
+        "store": "faf5380913deb505",
+        "log": "",
+        "insecure": false,
+        "apiRequestsEnabled": true,
+        "debug": false,
+        "track": false,
+        "profileFields": "first_name,last_name,name",
+        "webHook": "https://presentation.cloud.novatalks.com.ua/redbot/messenger/channel-messenger/107409481673341",
+        "startButtonPayload": "get started"
+    },
+    {
+        "id": "686adea6395985f8",
+        "type": "chatbot-redis-queue-config",
+        "name": "Local",
+        "options": "{\"port\":6379,\"host\":\"ntk-ua-presentation-redis\",\"family\":4,\"db\":5}",
+        "optionsType": "json"
+    },
+    {
+        "id": "ff6baf607c0b5bc0",
+        "type": "chatbot-context-store",
+        "name": "Redis_0",
+        "contextStorage": "redis",
+        "contextParams": "{\"port\":6379,\"host\":\"ntk-ua-presentation-redis\",\"family\":4,\"db\":0}",
+        "contextParamsType": "json"
+    },
+    {
+        "id": "faf5380913deb505",
+        "type": "chatbot-context-store",
+        "name": "1",
+        "contextStorage": "redis",
+        "contextParams": "{\"port\":6379,\"host\":\"ntk-ua-presentation-redis\",\"family\":4,\"db\":0}",
+        "contextParamsType": "json"
+    }
+]
